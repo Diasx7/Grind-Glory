@@ -84,6 +84,40 @@
   letter-spacing: 0.5px;
 }
 
+/* area de login/teste do dia 2, bem simples ainda */
+.area-login {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.login-caixa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-caixa input,
+.login-caixa button {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+}
+
+.login-caixa button {
+  background: #aa3bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
 @media (min-width: 640px) {
   .titulo {
     font-size: 56px;
