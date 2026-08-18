@@ -11,7 +11,13 @@ function Login() {
     e.preventDefault()
     setCarregando(true)
 
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    // emailRedirectTo faz o link do email voltar pra onde o app ta rodando
+    // agora (localhost:5173 no pc, url da vercel no ar). sem isso ele usa o
+    // Site URL do supabase, que vem como localhost:3000 e da pagina em branco
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin },
+    })
 
     setCarregando(false)
 

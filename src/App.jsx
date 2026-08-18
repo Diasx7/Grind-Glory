@@ -44,10 +44,16 @@ function App() {
       .maybeSingle()
 
     if (!data) {
-      await supabase.from('usuario').insert({
+      const { error } = await supabase.from('usuario').insert({
         id: sessao.user.id,
         nome: sessao.user.email,
       })
+
+      // se falhar aqui, salvar tarefa depois da erro de "foreign key",
+      // entao deixo o motivo real aparecer no console
+      if (error) {
+        console.log('erro ao criar o usuario', error)
+      }
     }
   }
 

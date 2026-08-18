@@ -43,21 +43,49 @@ tarefas).
 
 ### 4. Pegar a URL e a chave
 
-1. No menu da esquerda, entra em **Project Settings > API**
-2. Copia o **Project URL** e a chave **anon public**
+No menu da esquerda, entra em **Project Settings > API Keys**:
+
+- **Project URL** — algo tipo `https://abcdefgh.supabase.co`
+- **Publishable key** — a chave que começa com `sb_publishable_`
+
+Essa `sb_publishable_` é o formato novo da chave pública, ela substitui a
+antiga `anon public` (aquele texto gigante começando com `eyJ`). As duas
+funcionam igual pro app, é só usar a nova. Ela é pública mesmo, pode ir
+pro navegador — quem protege os dados é o RLS lá no banco.
 
 ### 5. Colar no `.env`
 
-Esse projeto já tem um arquivo `.env` (ele **não** vai pro git, chave não
-pode vazar). Abre ele na raiz do projeto e troca os valores:
+Esse projeto já tem um arquivo `.env` na raiz (ele **não** vai pro git,
+chave não pode vazar). Abre ele e troca os valores:
 
 ```
-VITE_SUPABASE_URL=cole_aqui_a_project_url
-VITE_SUPABASE_ANON_KEY=cole_aqui_a_anon_key
+VITE_SUPABASE_URL=https://abcdefgh.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_xxxxxxxxxxxxxxxx
 ```
+
+- O **Project URL** vai em `VITE_SUPABASE_URL`
+- A **Publishable key** (`sb_publishable_...`) vai em
+  `VITE_SUPABASE_ANON_KEY`
+
+O nome da variável continua `ANON_KEY` só pra não ter que mexer no
+código — o que importa é o valor.
+
+Sem aspas, sem espaço em volta do `=`. Depois de salvar o `.env` **para
+o servidor e roda `npm run dev` de novo**, senão o Vite continua com os
+valores velhos.
 
 Se o arquivo `.env` não existir por algum motivo, copia o
 `.env.example` e renomeia pra `.env`.
+
+### 5.1. Liberar o endereço do link mágico
+
+No Supabase, em **Authentication > URL Configuration**:
+
+- **Site URL**: `http://localhost:5173`
+- Em **Redirect URLs**, adiciona `http://localhost:5173/**` (e depois a
+  URL da Vercel, quando publicar)
+
+Sem isso o link do email não te traz de volta pro app logado.
 
 ### 6. Rodar
 
@@ -79,9 +107,26 @@ Abre o link que aparece no terminal (geralmente
 6. Pra conferir direto no banco: no Supabase, vai em **Table Editor >
    tarefa** e vê se a linha apareceu
 
-Se der erro de "site não configurado" no link do email, vai em
-**Authentication > URL Configuration** no Supabase e confere se o
-**Site URL** está como `http://localhost:5173`.
+### Se a lista vier vazia
+
+Abre o console do navegador (F12 > Console) e vê o que aparece:
+
+- **`violates foreign key constraint`** ao salvar — a linha do perfil na
+  tabela `usuario` não foi criada. Confere em **Table Editor > usuario**
+  se tem uma linha com o seu id. Se não tiver, é a política de insert do
+  `usuario` faltando: roda o `schema.sql` de novo.
+- **`new row violates row-level security policy`** — o RLS bloqueou. Quer
+  dizer que o `usuario_id` que o app mandou não bate com o usuário
+  logado, ou as políticas não foram criadas.
+- **Salva sem erro mas a lista fica vazia** — é a política de `select`
+  faltando. O insert passou, o read não. Confere em **Table Editor >
+  tarefa** se a linha existe: se existe no banco e não aparece no app, é
+  RLS de leitura.
+- **`Invalid API key`** — a chave no `.env` está errada, ou você não
+  reiniciou o `npm run dev` depois de editar o `.env`.
+- **Nada no console e nem carrega** — confere se o `.env` está na raiz do
+  projeto (mesma pasta do `package.json`) e se as variáveis começam com
+  `VITE_` (o Vite ignora as que não começam).
 
 ## Deploy
 
