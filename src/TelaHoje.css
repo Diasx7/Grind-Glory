@@ -403,3 +403,38 @@
   color: #b9aed1;
   line-height: 1.45;
 }
+
+/* ---------- os 3 atributos (provisorio ate a tela do heroi, dia 6) ---------- */
+.atributos {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.atributo {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 8px 4px;
+  color: #b9aed1;
+}
+
+.atributo b {
+  font-size: 14px;
+}
+
+.atributo.cor-inteligencia b {
+  color: #7aa2ff;
+}
+
+.atributo.cor-forca b {
+  color: #6fd39b;
+}
+
+.atributo.cor-agilidade b {
+  color: #f0b46a;
+}

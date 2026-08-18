@@ -5,20 +5,27 @@ import './TelaHoje.css'
 // as categorias do jogo. a dificuldade de cada uma tambem vive no trigger
 // aplicar_dificuldade() la no banco - mexeu aqui, mexe la tambem.
 const categorias = [
-  { id: 'estudo', nome: 'Estudo', emoji: '📘' },
-  { id: 'leitura', nome: 'Leitura', emoji: '📖' },
-  { id: 'exercicio', nome: 'Exercício', emoji: '💪' },
-  { id: 'saude', nome: 'Saúde', emoji: '🌿' },
-  { id: 'trabalho', nome: 'Trabalho', emoji: '💼' },
-  { id: 'organizacao', nome: 'Organização', emoji: '🧹' },
+  { id: 'estudo', nome: 'Estudo', emoji: '📘', atributo: 'inteligencia' },
+  { id: 'leitura', nome: 'Leitura', emoji: '📖', atributo: 'inteligencia' },
+  { id: 'exercicio', nome: 'Exercício', emoji: '💪', atributo: 'forca' },
+  { id: 'saude', nome: 'Saúde', emoji: '🌿', atributo: 'forca' },
+  { id: 'trabalho', nome: 'Trabalho', emoji: '💼', atributo: 'agilidade' },
+  { id: 'organizacao', nome: 'Organização', emoji: '🧹', atributo: 'agilidade' },
 ]
+
+// os 3 atributos do heroi. o nome da chave é igual ao da coluna no banco.
+const atributos = {
+  inteligencia: { nome: 'Int', emoji: '🧠' },
+  forca: { nome: 'For', emoji: '💪' },
+  agilidade: { nome: 'Agi', emoji: '⚡' },
+}
 
 // o que cada dificuldade rende. a curva é quase reta de proposito: tarefa
 // pequena TEM que valer a pena, é a ideia do app inteiro.
 const recompensas = {
-  1: { moedas: 5, xp: 10 },
-  2: { moedas: 10, xp: 22 },
-  3: { moedas: 18, xp: 40 },
+  1: { moedas: 5, xp: 10, pontos: 1 },
+  2: { moedas: 10, xp: 22, pontos: 2 },
+  3: { moedas: 18, xp: 40, pontos: 3 },
 }
 
 // da 4a tarefa da mesma categoria no mesmo dia em diante, o ganho cai pela
@@ -103,28 +110,44 @@ function TelaHoje({ usuario }) {
 
   function calcularGanho(tarefa) {
     const base = recompensas[tarefa.dificuldade] || recompensas[1]
+    const cat = categorias.find((c) => c.id === tarefa.categoria)
+    const atributo = cat ? cat.atributo : null
+
     const cortarPelaMetade =
       quantasFeitasNaCategoria(tarefa.categoria) >= limiteSemDesconto
 
     if (!cortarPelaMetade) {
-      return { moedas: base.moedas, xp: base.xp, reduzido: false }
+      return {
+        moedas: base.moedas,
+        xp: base.xp,
+        atributo: atributo,
+        pontos: base.pontos,
+        reduzido: false,
+      }
     }
 
     // arredonda pra cima pra nunca dar zero - a ideia é desincentivar, nao punir
     return {
       moedas: Math.round(base.moedas / 2),
       xp: Math.round(base.xp / 2),
+      atributo: atributo,
+      pontos: Math.round(base.pontos / 2),
       reduzido: true,
     }
   }
 
-  // soma (ou devolve, se vier negativo) moeda e xp no perfil
-  async function mexerNoPerfil(moedas, xp) {
+  // soma (ou devolve, se vier negativo) moeda, xp e atributo no perfil
+  async function mexerNoPerfil(moedas, xp, atributo, pontos) {
     if (!perfil) return
 
     const novo = {
       moedas: Math.max(0, perfil.moedas + moedas),
       xp: Math.max(0, perfil.xp + xp),
+    }
+
+    // cada atributo é uma coluna diferente, entao monto a chave na hora
+    if (atributo) {
+      novo[atributo] = Math.max(0, perfil[atributo] + pontos)
     }
 
     setPerfil({ ...perfil, ...novo })
@@ -199,6 +222,8 @@ function TelaHoje({ usuario }) {
         data: dataDeHoje(),
         moedas: ganho.moedas,
         xp: ganho.xp,
+        atributo: ganho.atributo,
+        pontos_atributo: ganho.pontos,
       })
       .select()
       .single()
@@ -209,7 +234,7 @@ function TelaHoje({ usuario }) {
     }
 
     setConclusoes([...conclusoes, data])
-    mexerNoPerfil(ganho.moedas, ganho.xp)
+    mexerNoPerfil(ganho.moedas, ganho.xp, ganho.atributo, ganho.pontos)
 
     const cat = categorias.find((c) => c.id === tarefa.categoria)
     mostrarGanho(ganho, cat ? cat.nome : '')
@@ -232,7 +257,12 @@ function TelaHoje({ usuario }) {
     setConclusoes(conclusoes.filter((c) => c.id !== conclusao.id))
 
     // devolve exatamente o que essa conclusao tinha dado
-    mexerNoPerfil(-conclusao.moedas, -conclusao.xp)
+    mexerNoPerfil(
+      -conclusao.moedas,
+      -conclusao.xp,
+      conclusao.atributo,
+      -conclusao.pontos_atributo,
+    )
   }
 
   async function apagarTarefa(tarefa) {
@@ -240,7 +270,12 @@ function TelaHoje({ usuario }) {
     // farmar assim: cria, marca, apaga, cria de novo, marca de novo...
     const conclusao = conclusoes.find((c) => c.tarefa_id === tarefa.id)
     if (conclusao) {
-      mexerNoPerfil(-conclusao.moedas, -conclusao.xp)
+      mexerNoPerfil(
+        -conclusao.moedas,
+        -conclusao.xp,
+        conclusao.atributo,
+        -conclusao.pontos_atributo,
+      )
     }
 
     setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
@@ -299,6 +334,16 @@ function TelaHoje({ usuario }) {
         <div className="carteira">
           <span className="carteira-item">🪙 {perfil ? perfil.moedas : 0}</span>
           <span className="carteira-item">⭐ {perfil ? perfil.xp : 0} XP</span>
+        </div>
+
+        {/* os 3 atributos, so pra conferir que sobem. a tela do heroi vem no dia 6 */}
+        <div className="atributos">
+          {Object.keys(atributos).map((chave) => (
+            <span key={chave} className={'atributo cor-' + chave}>
+              {atributos[chave].emoji} {atributos[chave].nome}{' '}
+              <b>{perfil ? perfil[chave] : 0}</b>
+            </span>
+          ))}
         </div>
 
         <section className="progresso">
@@ -400,7 +445,7 @@ function TelaHoje({ usuario }) {
           })}
         </ul>
 
-        <footer className="rodape-hoje">dia 4 · moeda e xp</footer>
+        <footer className="rodape-hoje">dia 5 · moeda, xp e atributos</footer>
       </div>
 
       {/* aviso flutuante do que a tarefa rendeu */}
@@ -408,6 +453,12 @@ function TelaHoje({ usuario }) {
         <div className="ganho">
           <span className="ganho-valores">
             +{ganhoNaTela.moedas} 🪙 · +{ganhoNaTela.xp} ⭐
+            {ganhoNaTela.atributo && (
+              <>
+                {' '}
+                · +{ganhoNaTela.pontos} {atributos[ganhoNaTela.atributo].emoji}
+              </>
+            )}
           </span>
           {ganhoNaTela.reduzido && (
             <span className="ganho-recado">
