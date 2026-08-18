@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
+import { atributos, dataDeHoje } from './jogo'
 import './TelaHoje.css'
 
 // as categorias do jogo. a dificuldade de cada uma tambem vive no trigger
@@ -13,13 +14,6 @@ const categorias = [
   { id: 'organizacao', nome: 'Organização', emoji: '🧹', atributo: 'agilidade' },
 ]
 
-// os 3 atributos do heroi. o nome da chave é igual ao da coluna no banco.
-const atributos = {
-  inteligencia: { nome: 'Int', emoji: '🧠' },
-  forca: { nome: 'For', emoji: '💪' },
-  agilidade: { nome: 'Agi', emoji: '⚡' },
-}
-
 // o que cada dificuldade rende. a curva é quase reta de proposito: tarefa
 // pequena TEM que valer a pena, é a ideia do app inteiro.
 const recompensas = {
@@ -31,16 +25,6 @@ const recompensas = {
 // da 4a tarefa da mesma categoria no mesmo dia em diante, o ganho cai pela
 // metade. nao bloqueia nada, so tira a graça de picar uma tarefa em dez.
 const limiteSemDesconto = 3
-
-// o hoje no fuso do celular, no formato que o banco espera (2026-08-18).
-// NAO usar toISOString aqui: ele converte pra UTC e as tarefas da noite
-// pulavam pro dia seguinte.
-function dataDeHoje() {
-  const agora = new Date()
-  const mes = String(agora.getMonth() + 1).padStart(2, '0')
-  const dia = String(agora.getDate()).padStart(2, '0')
-  return agora.getFullYear() + '-' + mes + '-' + dia
-}
 
 function TelaHoje({ usuario }) {
   const [tarefas, setTarefas] = useState([])
@@ -336,15 +320,6 @@ function TelaHoje({ usuario }) {
           <span className="carteira-item">⭐ {perfil ? perfil.xp : 0} XP</span>
         </div>
 
-        {/* os 3 atributos, so pra conferir que sobem. a tela do heroi vem no dia 6 */}
-        <div className="atributos">
-          {Object.keys(atributos).map((chave) => (
-            <span key={chave} className={'atributo cor-' + chave}>
-              {atributos[chave].emoji} {atributos[chave].nome}{' '}
-              <b>{perfil ? perfil[chave] : 0}</b>
-            </span>
-          ))}
-        </div>
 
         <section className="progresso">
           <div className="progresso-texto">
@@ -445,7 +420,7 @@ function TelaHoje({ usuario }) {
           })}
         </ul>
 
-        <footer className="rodape-hoje">dia 5 · moeda, xp e atributos</footer>
+        <footer className="rodape-hoje">dia 6 · tela do heroi</footer>
       </div>
 
       {/* aviso flutuante do que a tarefa rendeu */}

@@ -25,7 +25,8 @@
   z-index: 1;
   max-width: 480px;
   margin: 0 auto;
-  padding: 28px 20px 40px;
+  /* o padding de baixo é grande por causa da barra de abas fixa */
+  padding: 28px 20px 100px;
 }
 
 /* ---------- topo ---------- */
@@ -365,7 +366,8 @@
 .ganho {
   position: fixed;
   left: 50%;
-  bottom: 26px;
+  /* acima da barra de abas, senao fica escondido atras dela */
+  bottom: 88px;
   transform: translateX(-50%);
   width: calc(100% - 40px);
   max-width: 320px;
@@ -404,37 +406,3 @@
   line-height: 1.45;
 }
 
-/* ---------- os 3 atributos (provisorio ate a tela do heroi, dia 6) ---------- */
-.atributos {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.atributo {
-  flex: 1;
-  text-align: center;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-  padding: 8px 4px;
-  color: #b9aed1;
-}
-
-.atributo b {
-  font-size: 14px;
-}
-
-.atributo.cor-inteligencia b {
-  color: #7aa2ff;
-}
-
-.atributo.cor-forca b {
-  color: #6fd39b;
-}
-
-.atributo.cor-agilidade b {
-  color: #f0b46a;
-}

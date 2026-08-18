@@ -2,12 +2,14 @@
 import { supabase, supabaseConfigurado } from './supabaseClient'
 import Login from './Login'
 import TelaHoje from './TelaHoje'
+import TelaHeroi from './TelaHeroi'
 import './App.css'
 
 function App() {
   const [sessao, setSessao] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [perfilPronto, setPerfilPronto] = useState(false)
+  const [aba, setAba] = useState('hoje')
 
   useEffect(() => {
     // se o .env ainda nao foi preenchido, nem tenta falar com o supabase
@@ -71,7 +73,35 @@ function App() {
       return <div className="tela-carregando">preparando seu herói...</div>
     }
 
-    return <TelaHoje usuario={sessao.user} />
+    return (
+      <>
+        {aba === 'hoje' ? (
+          <TelaHoje usuario={sessao.user} />
+        ) : (
+          <TelaHeroi usuario={sessao.user} />
+        )}
+
+        {/* barrinha de navegacao fixa embaixo, que nem app de celular.
+            trocar de aba desmonta a outra tela, entao ela sempre volta
+            com os numeros recem buscados do banco. */}
+        <nav className="abas">
+          <button
+            className={aba === 'hoje' ? 'aba aba-ativa' : 'aba'}
+            onClick={() => setAba('hoje')}
+          >
+            <span className="aba-emoji">📋</span>
+            Hoje
+          </button>
+          <button
+            className={aba === 'heroi' ? 'aba aba-ativa' : 'aba'}
+            onClick={() => setAba('heroi')}
+          >
+            <span className="aba-emoji">🛡️</span>
+            Herói
+          </button>
+        </nav>
+      </>
+    )
   }
 
   return (

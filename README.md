@@ -3,11 +3,13 @@
 App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói de RPG.
 
 - **Dia 1:** setup do projeto e tela inicial
-- **Dia 2:** login por email e salvar/ler tarefa no banco (esse aqui)
+- **Dia 2:** login e salvar/ler tarefa no banco
+- **Dia 3:** tela Hoje — criar, listar e marcar tarefa
+- **Dia 4:** moeda e XP por dificuldade, com retorno decrescente
+- **Dia 5:** atributos subindo por categoria
+- **Dia 6:** tela do Herói — o espelho (esse aqui)
 
-Ainda não tem lista de tarefas de verdade, herói ou batalha — isso vem nos
-próximos dias. Hoje é só provar que dá pra logar e que a tarefa salva e
-volta do banco.
+Ainda não tem loja, equipamento ou batalha — isso vem nos próximos dias.
 
 ## Stack
 
@@ -167,3 +169,13 @@ dificuldade de outro.
 O "hoje" é calculado quando a tela monta. Se deixar o app aberto
 atravessando a meia-noite, ele continua mostrando o dia anterior até
 recarregar.
+
+### A coluna `usuario.nivel` está morta
+Ela existe desde o dia 2 mas nunca foi escrita — está em `1` pra todo
+mundo. O nível mostrado na tela do Herói é **derivado do XP** na hora
+(`calcularNivel()` no `TelaHeroi.jsx`), pra não ter dois números dizendo
+a mesma coisa e saindo de sincronia.
+
+Ou a coluna some numa migração, ou passa a ser preenchida — mas ter as
+duas coisas é pedir bug. Deixei derivado porque é o que não quebra nada
+hoje.

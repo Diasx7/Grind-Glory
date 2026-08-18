@@ -1,0 +1,205 @@
+/* tela do heroi - mesmo clima da tela Hoje, celular primeiro */
+.tela-heroi {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #f1eaff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.brilho-heroi {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.conteudo-heroi {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  /* o padding de baixo é grande por causa da barra de abas fixa */
+  padding: 28px 20px 100px;
+}
+
+.heroi-aviso {
+  color: #b9aed1;
+  font-size: 14px;
+  text-align: center;
+  padding-top: 60px;
+}
+
+/* ---------- cartao de cima: carinha, nivel, xp, moeda ---------- */
+.cartao-heroi {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 24px 20px 18px;
+  margin-bottom: 30px;
+}
+
+.heroi-carinha {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.heroi-nome {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.heroi-nivel {
+  font-size: 13px;
+  color: #c084fc;
+  letter-spacing: 1px;
+  margin: 4px 0 14px;
+}
+
+.barra-nivel {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.barra-nivel-cheia {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  transition: width 0.4s ease;
+}
+
+.heroi-xp {
+  font-size: 11px;
+  color: #6e6482;
+  margin-top: 7px;
+}
+
+.heroi-bolsos {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 13px;
+  color: #b9aed1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- o espelho ---------- */
+.titulo-espelho {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6e6482;
+  margin-bottom: 10px;
+}
+
+.frase-espelho {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #b9aed1;
+  margin-bottom: 24px;
+}
+
+.heroi-vazio {
+  text-align: center;
+  padding: 26px 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.heroi-vazio-titulo {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.heroi-vazio-texto {
+  font-size: 13px;
+  color: #b9aed1;
+  line-height: 1.55;
+}
+
+/* ---------- as 3 barras ---------- */
+.lista-atributos {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.atributo-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.atributo-nome {
+  font-size: 14px;
+}
+
+.atributo-valor {
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* a barra é alta de proposito: quanto mais grossa, mais o buraco
+   do atributo esquecido salta aos olhos */
+.barra-fundo {
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.barra-cheia {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  /* largura minima pra barra zerada ainda aparecer como um tracinho */
+  min-width: 4px;
+}
+
+.barra-inteligencia {
+  background: linear-gradient(90deg, #4a6fd4, #7aa2ff);
+}
+
+.barra-forca {
+  background: linear-gradient(90deg, #3f9c6d, #6fd39b);
+}
+
+.barra-agilidade {
+  background: linear-gradient(90deg, #c8853f, #f0b46a);
+}
+
+.atributo-recado {
+  font-size: 12px;
+  color: #6e6482;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+/* quando ta parado ha dias o recado fica mais visivel - mas em roxo,
+   nao em vermelho: é convite, nao alerta de erro */
+.recado-chamando {
+  color: #c084fc;
+}
+
+.rodape-heroi {
+  margin-top: 36px;
+  text-align: center;
+  font-size: 12px;
+  color: #6e6482;
+  letter-spacing: 0.5px;
+}

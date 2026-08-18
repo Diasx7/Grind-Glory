@@ -189,3 +189,48 @@
   justify-content: center;
   font-size: 14px;
 }
+
+/* ---------- barra de abas (Hoje / Heroi) ---------- */
+.abas {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  background: rgba(20, 16, 31, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* respeita a faixa do gesto no iphone */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.aba {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 10px 0 12px;
+  cursor: pointer;
+}
+
+.aba-emoji {
+  font-size: 19px;
+  line-height: 1;
+  /* apagadinho quando a aba nao ta escolhida */
+  opacity: 0.5;
+}
+
+.aba-ativa {
+  color: #c084fc;
+}
+
+.aba-ativa .aba-emoji {
+  opacity: 1;
+}
