@@ -1,4 +1,6 @@
 -- roda isso no SQL Editor do Supabase (dia 2)
+-- ATENCAO: depois desse arquivo, roda tambem o migracao_dia4.sql (modelo novo
+-- de conclusao + data_ref). so esse aqui nao deixa o banco atualizado.
 
 -- tabela do usuario (perfil do jogador)
 -- o id é o mesmo id que o supabase auth cria quando a pessoa loga

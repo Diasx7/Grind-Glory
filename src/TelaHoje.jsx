@@ -2,47 +2,70 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import './TelaHoje.css'
 
-// as 3 categorias do comeco, por enquanto fixas mesmo
+// as categorias do jogo. a dificuldade de cada uma tambem vive no trigger
+// aplicar_dificuldade() la no banco - mexeu aqui, mexe la tambem.
 const categorias = [
   { id: 'estudo', nome: 'Estudo', emoji: '📘' },
+  { id: 'leitura', nome: 'Leitura', emoji: '📖' },
+  { id: 'exercicio', nome: 'Exercício', emoji: '💪' },
   { id: 'saude', nome: 'Saúde', emoji: '🌿' },
+  { id: 'trabalho', nome: 'Trabalho', emoji: '💼' },
   { id: 'organizacao', nome: 'Organização', emoji: '🧹' },
 ]
 
-// meia noite de hoje, pra pegar só as tarefas do dia
-function inicioDeHoje() {
+// o hoje no fuso do celular, no formato que o banco espera (2026-08-18).
+// NAO usar toISOString aqui: ele converte pra UTC e as tarefas da noite
+// pulavam pro dia seguinte.
+function dataDeHoje() {
   const agora = new Date()
-  agora.setHours(0, 0, 0, 0)
-  return agora.toISOString()
+  const mes = String(agora.getMonth() + 1).padStart(2, '0')
+  const dia = String(agora.getDate()).padStart(2, '0')
+  return agora.getFullYear() + '-' + mes + '-' + dia
 }
 
 function TelaHoje({ usuario }) {
   const [tarefas, setTarefas] = useState([])
+  const [conclusoes, setConclusoes] = useState([])
   const [titulo, setTitulo] = useState('')
   const [categoria, setCategoria] = useState('estudo')
   const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
-    buscarTarefas()
+    buscarTudo()
   }, [])
 
-  async function buscarTarefas() {
-    const { data, error } = await supabase
+  async function buscarTudo() {
+    const hoje = dataDeHoje()
+
+    // as tarefas marcadas pra hoje (data_ref), nao as criadas hoje
+    const { data: listaTarefas, error: erroTarefas } = await supabase
       .from('tarefa')
       .select('*')
       .eq('usuario_id', usuario.id)
-      .gte('criada_em', inicioDeHoje())
-      .order('feita_hoje', { ascending: true }) // as feitas descem pro fim da lista
+      .eq('data_ref', hoje)
       .order('criada_em', { ascending: true })
 
-    if (error) {
-      console.log('erro ao buscar tarefas', error)
+    // e as conclusoes de hoje, que é o que diz se a tarefa ta feita
+    const { data: listaConclusoes, error: erroConclusoes } = await supabase
+      .from('conclusao')
+      .select('*')
+      .eq('usuario_id', usuario.id)
+      .eq('data', hoje)
+
+    if (erroTarefas || erroConclusoes) {
+      console.log('erro ao buscar', erroTarefas || erroConclusoes)
       setCarregando(false)
       return
     }
 
-    setTarefas(data)
+    setTarefas(listaTarefas)
+    setConclusoes(listaConclusoes)
     setCarregando(false)
+  }
+
+  // tarefa feita agora é "existe conclusao dela hoje", nao é mais um booleano
+  function estaFeita(tarefa) {
+    return conclusoes.some((c) => c.tarefa_id === tarefa.id)
   }
 
   async function criarTarefa(e) {
@@ -51,15 +74,15 @@ function TelaHoje({ usuario }) {
     const textoLimpo = titulo.trim()
     if (!textoLimpo) return
 
+    // nao mando dificuldade: o trigger do banco calcula ela pela categoria
     const { data, error } = await supabase
       .from('tarefa')
       .insert({
         usuario_id: usuario.id,
         titulo: textoLimpo,
         categoria: categoria,
-        dificuldade: 1,
+        data_ref: dataDeHoje(),
         recorrente: false,
-        feita_hoje: false,
       })
       .select()
       .single()
@@ -70,41 +93,64 @@ function TelaHoje({ usuario }) {
       return
     }
 
-    // ja limpa o campo e joga a tarefa na lista, sem esperar recarregar tudo
     setTitulo('')
     setTarefas([...tarefas, data])
   }
 
-  async function marcarTarefa(tarefa) {
-    const novoValor = !tarefa.feita_hoje
+  function marcarTarefa(tarefa) {
+    if (estaFeita(tarefa)) {
+      desconcluir(tarefa)
+    } else {
+      concluir(tarefa)
+    }
+  }
 
-    // muda na tela primeiro pra parecer instantaneo, depois salva no banco
-    setTarefas(
-      tarefas.map((t) =>
-        t.id === tarefa.id ? { ...t, feita_hoje: novoValor } : t,
-      ),
-    )
+  async function concluir(tarefa) {
+    const { data, error } = await supabase
+      .from('conclusao')
+      .insert({
+        tarefa_id: tarefa.id,
+        usuario_id: usuario.id,
+        data: dataDeHoje(),
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.log('erro ao concluir', error)
+      return
+    }
+
+    setConclusoes([...conclusoes, data])
+  }
+
+  async function desconcluir(tarefa) {
+    const conclusao = conclusoes.find((c) => c.tarefa_id === tarefa.id)
+    if (!conclusao) return
 
     const { error } = await supabase
-      .from('tarefa')
-      .update({ feita_hoje: novoValor })
-      .eq('id', tarefa.id)
+      .from('conclusao')
+      .delete()
+      .eq('id', conclusao.id)
 
-    // se o banco recusou, recarrega pra tela nao mentir
     if (error) {
-      console.log('erro ao marcar tarefa', error)
-      buscarTarefas()
+      console.log('erro ao desconcluir', error)
+      return
     }
+
+    setConclusoes(conclusoes.filter((c) => c.id !== conclusao.id))
   }
 
   async function apagarTarefa(tarefa) {
     setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
+    setConclusoes(conclusoes.filter((c) => c.tarefa_id !== tarefa.id))
 
+    // o banco apaga a conclusao junto por causa do "on delete cascade"
     const { error } = await supabase.from('tarefa').delete().eq('id', tarefa.id)
 
     if (error) {
       console.log('erro ao apagar tarefa', error)
-      buscarTarefas()
+      buscarTudo()
     }
   }
 
@@ -122,13 +168,13 @@ function TelaHoje({ usuario }) {
 
   const nome = usuario.email.split('@')[0]
 
-  const dataDeHoje = new Date().toLocaleDateString('pt-BR', {
+  const dataFormatada = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   })
 
-  const feitas = tarefas.filter((t) => t.feita_hoje).length
+  const feitas = conclusoes.length
   const total = tarefas.length
   const porcentagem = total === 0 ? 0 : (feitas / total) * 100
 
@@ -142,7 +188,7 @@ function TelaHoje({ usuario }) {
             <p className="saudacao">
               {saudacao()}, {nome}
             </p>
-            <p className="data-hoje">{dataDeHoje}</p>
+            <p className="data-hoje">{dataFormatada}</p>
           </div>
           <button className="botao-sair" onClick={sair}>
             sair
@@ -215,18 +261,16 @@ function TelaHoje({ usuario }) {
         <ul className="lista">
           {tarefas.map((t) => {
             const cat = categorias.find((c) => c.id === t.categoria)
+            const feita = estaFeita(t)
 
             return (
-              <li
-                key={t.id}
-                className={t.feita_hoje ? 'tarefa tarefa-feita' : 'tarefa'}
-              >
+              <li key={t.id} className={feita ? 'tarefa tarefa-feita' : 'tarefa'}>
                 <button
                   className={'marcador cor-' + t.categoria}
                   onClick={() => marcarTarefa(t)}
-                  aria-label={t.feita_hoje ? 'desmarcar' : 'marcar como feita'}
+                  aria-label={feita ? 'desmarcar' : 'marcar como feita'}
                 >
-                  {t.feita_hoje ? '✓' : ''}
+                  {feita ? '✓' : ''}
                 </button>
 
                 <div className="tarefa-texto">

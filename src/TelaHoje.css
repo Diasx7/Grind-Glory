@@ -174,16 +174,21 @@
   font-weight: 500;
 }
 
-.chip-ativo.cor-estudo {
+/* a cor segue o atributo, nao a categoria: azul = inteligencia,
+   verde = força, ambar = agilidade. assim bate com a tela do heroi depois. */
+.chip-ativo.cor-estudo,
+.chip-ativo.cor-leitura {
   border-color: #7aa2ff;
   background: rgba(122, 162, 255, 0.15);
 }
 
+.chip-ativo.cor-exercicio,
 .chip-ativo.cor-saude {
   border-color: #6fd39b;
   background: rgba(111, 211, 155, 0.15);
 }
 
+.chip-ativo.cor-trabalho,
 .chip-ativo.cor-organizacao {
   border-color: #f0b46a;
   background: rgba(240, 180, 106, 0.15);
@@ -225,14 +230,17 @@
   margin-top: 5px;
 }
 
-.texto-estudo {
+.texto-estudo,
+.texto-leitura {
   color: #7aa2ff;
 }
 
+.texto-exercicio,
 .texto-saude {
   color: #6fd39b;
 }
 
+.texto-trabalho,
 .texto-organizacao {
   color: #f0b46a;
 }
@@ -251,14 +259,17 @@
   cursor: pointer;
 }
 
-.marcador.cor-estudo {
+.marcador.cor-estudo,
+.marcador.cor-leitura {
   border-color: #7aa2ff;
 }
 
+.marcador.cor-exercicio,
 .marcador.cor-saude {
   border-color: #6fd39b;
 }
 
+.marcador.cor-trabalho,
 .marcador.cor-organizacao {
   border-color: #f0b46a;
 }
