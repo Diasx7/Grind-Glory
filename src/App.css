@@ -109,6 +109,21 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 14px;
+  font-family: inherit;
+}
+
+.login-caixa input {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1eaff;
+}
+
+.login-caixa input::placeholder {
+  color: #6e6482;
+}
+
+.login-caixa input:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
 }
 
 .login-caixa button {
@@ -116,6 +131,42 @@
   color: #fff;
   border: none;
   cursor: pointer;
+}
+
+.login-caixa button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* entrar e criar conta lado a lado */
+.login-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.login-botoes button {
+  flex: 1;
+}
+
+/* criar conta é a acao secundaria, entao fica so contornado */
+.login-caixa .botao-secundario {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #b9aed1;
+}
+
+.login-erro {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #ff8095;
+  text-align: left;
+}
+
+.login-aviso {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #c084fc;
+  text-align: left;
 }
 
 @media (min-width: 640px) {
@@ -126,4 +177,15 @@
   .subtitulo {
     font-size: 18px;
   }
+}
+
+/* telinha de espera enquanto o perfil do jogador é criado */
+.tela-carregando {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #b9aed1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }

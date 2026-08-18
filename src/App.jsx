@@ -7,6 +7,7 @@ import './App.css'
 function App() {
   const [sessao, setSessao] = useState(null)
   const [carregando, setCarregando] = useState(true)
+  const [perfilPronto, setPerfilPronto] = useState(false)
 
   useEffect(() => {
     // se o .env ainda nao foi preenchido, nem tenta falar com o supabase
@@ -32,6 +33,8 @@ function App() {
   useEffect(() => {
     if (sessao) {
       criarUsuarioSeNaoExiste()
+    } else {
+      setPerfilPronto(false)
     }
   }, [sessao])
 
@@ -55,10 +58,19 @@ function App() {
         console.log('erro ao criar o usuario', error)
       }
     }
+
+    setPerfilPronto(true)
   }
 
   // se ja ta logado, a tela de hoje toma conta do app inteiro
   if (supabaseConfigurado && !carregando && sessao) {
+    // numa conta recem criada a linha do usuario ainda ta sendo inserida.
+    // se a TelaHoje abrisse antes, ela leria perfil vazio e marcar tarefa
+    // nao somaria moeda nenhuma.
+    if (!perfilPronto) {
+      return <div className="tela-carregando">preparando seu herói...</div>
+    }
+
     return <TelaHoje usuario={sessao.user} />
   }
 

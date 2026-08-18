@@ -77,15 +77,17 @@ valores velhos.
 Se o arquivo `.env` não existir por algum motivo, copia o
 `.env.example` e renomeia pra `.env`.
 
-### 5.1. Liberar o endereço do link mágico
+### 5.1. Desligar a confirmação de email
 
-No Supabase, em **Authentication > URL Configuration**:
+O login é por **email + senha**. Era link mágico antes, mas o limite de
+email do Supabase é baixo demais pra testar o app todo dia.
 
-- **Site URL**: `http://localhost:5173`
-- Em **Redirect URLs**, adiciona `http://localhost:5173/**` (e depois a
-  URL da Vercel, quando publicar)
+No Supabase, em **Authentication > Sign In / Providers > Email**, deixa
+**Confirm email** desligado. Assim a conta criada no botão *criar conta*
+já entra direto, sem abrir email nenhum.
 
-Sem isso o link do email não te traz de volta pro app logado.
+Como não tem mais link voltando pro app, não precisa configurar Site URL
+nem Redirect URLs.
 
 ### 6. Rodar
 
@@ -98,14 +100,15 @@ Abre o link que aparece no terminal (geralmente
 
 ## Como testar login e salvar tarefa
 
-1. Com o app aberto, digita seu email e clica em **entrar com email**
-2. Vai no seu email, abre o "link mágico" que o Supabase mandou
-3. Isso te leva de volta pro app já logado
-4. Digita um título no campo de tarefa e clica em **salvar**
-5. A tarefa deve aparecer na lista embaixo — se recarregar a página e
-   ela continuar lá, é sinal que salvou certo no banco
-6. Pra conferir direto no banco: no Supabase, vai em **Table Editor >
-   tarefa** e vê se a linha apareceu
+1. Com o app aberto, digita um email e uma senha (mínimo 6 caracteres)
+2. Na primeira vez, clica em **criar conta** — você entra direto
+3. Nas próximas, é o mesmo email e senha no botão **entrar**
+4. Já na tela Hoje, escreve um título, escolhe a categoria e clica no **+**
+5. Marca a tarefa na bolinha: ela risca e o ganho aparece embaixo
+6. Recarrega a página — se a tarefa continuar marcada e as moedas
+   continuarem lá, salvou certo no banco
+7. Pra conferir direto no banco: no Supabase, **Table Editor > tarefa**
+   e **> conclusao**, e vê se as linhas apareceram
 
 ### Se a lista vier vazia
 
