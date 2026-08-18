@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+ import { useState, useEffect } from 'react'
 import { supabase, supabaseConfigurado } from './supabaseClient'
 import Login from './Login'
-import TelaTeste from './TelaTeste'
+import TelaHoje from './TelaHoje'
 import './App.css'
 
 function App() {
@@ -57,6 +57,11 @@ function App() {
     }
   }
 
+  // se ja ta logado, a tela de hoje toma conta do app inteiro
+  if (supabaseConfigurado && !carregando && sessao) {
+    return <TelaHoje usuario={sessao.user} />
+  }
+
   return (
     <div className="tela-inicial">
       <div className="brilho"></div>
@@ -86,12 +91,9 @@ function App() {
         )}
         {supabaseConfigurado && carregando && <p>carregando...</p>}
         {supabaseConfigurado && !carregando && !sessao && <Login />}
-        {supabaseConfigurado && !carregando && sessao && (
-          <TelaTeste usuario={sessao.user} />
-        )}
       </div>
 
-      <footer className="rodape">dia 2 · login e banco de dados</footer>
+      <footer className="rodape">dia 3 · tela de hoje</footer>
     </div>
   )
 }

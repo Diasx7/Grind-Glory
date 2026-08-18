@@ -1,0 +1,333 @@
+/* tela "Hoje" - pensada pro celular primeiro, no pc só fica centralizada */
+.tela-hoje {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #f1eaff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* mesmo brilho roxo da tela de abertura, pra parecer o mesmo app */
+.brilho-hoje {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.conteudo-hoje {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+/* ---------- topo ---------- */
+.topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.saudacao {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.data-hoje {
+  font-size: 13px;
+  color: #b9aed1;
+  margin-top: 4px;
+}
+
+.botao-sair {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #b9aed1;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botao-sair:hover {
+  color: #f1eaff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- barrinha de progresso do dia ---------- */
+.progresso {
+  margin-bottom: 22px;
+}
+
+.progresso-texto {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #b9aed1;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.progresso-barra {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progresso-preenchido {
+  height: 100%;
+  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progresso-recado {
+  font-size: 13px;
+  color: #c084fc;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* ---------- campo de criar tarefa ---------- */
+.form-nova {
+  margin-bottom: 26px;
+}
+
+.linha-campo {
+  display: flex;
+  gap: 8px;
+}
+
+.linha-campo input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  color: #f1eaff;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.linha-campo input::placeholder {
+  color: #6e6482;
+}
+
+.linha-campo input:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+.botao-add {
+  width: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.botao-add:hover {
+  filter: brightness(1.1);
+}
+
+/* ---------- escolha da categoria ---------- */
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b9aed1;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* a categoria escolhida acende na cor dela */
+.chip-ativo {
+  color: #f1eaff;
+  font-weight: 500;
+}
+
+.chip-ativo.cor-estudo {
+  border-color: #7aa2ff;
+  background: rgba(122, 162, 255, 0.15);
+}
+
+.chip-ativo.cor-saude {
+  border-color: #6fd39b;
+  background: rgba(111, 211, 155, 0.15);
+}
+
+.chip-ativo.cor-organizacao {
+  border-color: #f0b46a;
+  background: rgba(240, 180, 106, 0.15);
+}
+
+/* ---------- lista de tarefas ---------- */
+.lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tarefa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.tarefa-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarefa-titulo {
+  font-size: 15px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.tarefa-categoria {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.texto-estudo {
+  color: #7aa2ff;
+}
+
+.texto-saude {
+  color: #6fd39b;
+}
+
+.texto-organizacao {
+  color: #f0b46a;
+}
+
+/* bolinha de marcar, cada categoria tem a borda na cor dela */
+.marcador {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  color: #14101f;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.marcador.cor-estudo {
+  border-color: #7aa2ff;
+}
+
+.marcador.cor-saude {
+  border-color: #6fd39b;
+}
+
+.marcador.cor-organizacao {
+  border-color: #f0b46a;
+}
+
+/* quando a tarefa ta feita o card apaga e o titulo fica riscado */
+.tarefa-feita {
+  opacity: 0.45;
+}
+
+.tarefa-feita .tarefa-titulo {
+  text-decoration: line-through;
+}
+
+.tarefa-feita .marcador {
+  background: #c084fc;
+  border-color: #c084fc;
+}
+
+.botao-apagar {
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  flex-shrink: 0;
+}
+
+.botao-apagar:hover {
+  color: #ff8095;
+}
+
+/* ---------- estado vazio ---------- */
+.vazio {
+  text-align: center;
+  padding: 36px 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.vazio-emoji {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.vazio-titulo {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.vazio-texto {
+  font-size: 14px;
+  color: #b9aed1;
+  line-height: 1.55;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.aviso {
+  color: #b9aed1;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+.rodape-hoje {
+  margin-top: 36px;
+  text-align: center;
+  font-size: 12px;
+  color: #6e6482;
+  letter-spacing: 0.5px;
+}
