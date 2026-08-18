@@ -135,3 +135,32 @@ extra de build (ela já reconhece projeto Vite sozinha). Só não esquece
 de adicionar as mesmas variáveis do `.env` (`VITE_SUPABASE_URL` e
 `VITE_SUPABASE_ANON_KEY`) em **Project Settings > Environment
 Variables** lá na Vercel, senão o app não acha as chaves no ar.
+
+## Dívida técnica (pra resolver depois)
+
+### Recompensa é calculada no cliente
+O trigger `aplicar_dificuldade()` garante que a **dificuldade** de uma
+tarefa sempre venha da categoria, então não adianta chamar a API na mão
+mandando `dificuldade: 3` numa tarefa fácil.
+
+Mas os **valores** de moeda, XP e ponto de atributo ainda são calculados
+no JS (`recompensas` no `TelaHoje.jsx`) e escritos pelo cliente. Quem
+abrir o DevTools consegue inserir uma conclusão com `moedas: 9999`, e
+o mesmo vale pra `usuario.moedas` direto.
+
+O conserto de verdade é mover a conclusão inteira pra uma função Postgres
+(`concluir_tarefa(tarefa_id)`) com `security definer`, que calcula a
+recompensa no banco e aí sim é inviolável. Como hoje é um app de um
+jogador só, o único que pode trapacear sou eu — fica pra quando tiver
+mais gente usando.
+
+### O preset de dificuldade vive em dois lugares
+A lista `categorias` do `TelaHoje.jsx` e o `case` do trigger
+`aplicar_dificuldade()` precisam bater. Mexeu em um, mexe no outro.
+Se saírem de sincronia, a tela mostra um ganho e o banco grava a
+dificuldade de outro.
+
+### Sem tratamento de virada de dia com o app aberto
+O "hoje" é calculado quando a tela monta. Se deixar o app aberto
+atravessando a meia-noite, ele continua mostrando o dia anterior até
+recarregar.
