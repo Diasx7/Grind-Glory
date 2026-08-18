@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 import './TelaHoje.css'
 
@@ -13,6 +13,18 @@ const categorias = [
   { id: 'organizacao', nome: 'Organização', emoji: '🧹' },
 ]
 
+// o que cada dificuldade rende. a curva é quase reta de proposito: tarefa
+// pequena TEM que valer a pena, é a ideia do app inteiro.
+const recompensas = {
+  1: { moedas: 5, xp: 10 },
+  2: { moedas: 10, xp: 22 },
+  3: { moedas: 18, xp: 40 },
+}
+
+// da 4a tarefa da mesma categoria no mesmo dia em diante, o ganho cai pela
+// metade. nao bloqueia nada, so tira a graça de picar uma tarefa em dez.
+const limiteSemDesconto = 3
+
 // o hoje no fuso do celular, no formato que o banco espera (2026-08-18).
 // NAO usar toISOString aqui: ele converte pra UTC e as tarefas da noite
 // pulavam pro dia seguinte.
@@ -26,9 +38,13 @@ function dataDeHoje() {
 function TelaHoje({ usuario }) {
   const [tarefas, setTarefas] = useState([])
   const [conclusoes, setConclusoes] = useState([])
+  const [perfil, setPerfil] = useState(null)
   const [titulo, setTitulo] = useState('')
   const [categoria, setCategoria] = useState('estudo')
   const [carregando, setCarregando] = useState(true)
+  const [ganhoNaTela, setGanhoNaTela] = useState(null)
+
+  const tempoDoGanho = useRef(null)
 
   useEffect(() => {
     buscarTudo()
@@ -52,6 +68,14 @@ function TelaHoje({ usuario }) {
       .eq('usuario_id', usuario.id)
       .eq('data', hoje)
 
+    // maybeSingle porque no primeiro login o App ainda pode estar criando
+    // essa linha; se vier null a tela so nao deixa concluir por um segundo
+    const { data: dadosPerfil } = await supabase
+      .from('usuario')
+      .select('*')
+      .eq('id', usuario.id)
+      .maybeSingle()
+
     if (erroTarefas || erroConclusoes) {
       console.log('erro ao buscar', erroTarefas || erroConclusoes)
       setCarregando(false)
@@ -60,12 +84,66 @@ function TelaHoje({ usuario }) {
 
     setTarefas(listaTarefas)
     setConclusoes(listaConclusoes)
+    setPerfil(dadosPerfil)
     setCarregando(false)
   }
 
   // tarefa feita agora é "existe conclusao dela hoje", nao é mais um booleano
   function estaFeita(tarefa) {
     return conclusoes.some((c) => c.tarefa_id === tarefa.id)
+  }
+
+  // quantas tarefas dessa categoria ja foram concluidas hoje
+  function quantasFeitasNaCategoria(idCategoria) {
+    return conclusoes.filter((c) => {
+      const t = tarefas.find((t) => t.id === c.tarefa_id)
+      return t && t.categoria === idCategoria
+    }).length
+  }
+
+  function calcularGanho(tarefa) {
+    const base = recompensas[tarefa.dificuldade] || recompensas[1]
+    const cortarPelaMetade =
+      quantasFeitasNaCategoria(tarefa.categoria) >= limiteSemDesconto
+
+    if (!cortarPelaMetade) {
+      return { moedas: base.moedas, xp: base.xp, reduzido: false }
+    }
+
+    // arredonda pra cima pra nunca dar zero - a ideia é desincentivar, nao punir
+    return {
+      moedas: Math.round(base.moedas / 2),
+      xp: Math.round(base.xp / 2),
+      reduzido: true,
+    }
+  }
+
+  // soma (ou devolve, se vier negativo) moeda e xp no perfil
+  async function mexerNoPerfil(moedas, xp) {
+    if (!perfil) return
+
+    const novo = {
+      moedas: Math.max(0, perfil.moedas + moedas),
+      xp: Math.max(0, perfil.xp + xp),
+    }
+
+    setPerfil({ ...perfil, ...novo })
+
+    const { error } = await supabase
+      .from('usuario')
+      .update(novo)
+      .eq('id', usuario.id)
+
+    if (error) {
+      console.log('erro ao salvar o perfil', error)
+      buscarTudo()
+    }
+  }
+
+  function mostrarGanho(ganho, nomeCategoria) {
+    clearTimeout(tempoDoGanho.current)
+    setGanhoNaTela({ ...ganho, nomeCategoria })
+    tempoDoGanho.current = setTimeout(() => setGanhoNaTela(null), 3500)
   }
 
   async function criarTarefa(e) {
@@ -106,12 +184,21 @@ function TelaHoje({ usuario }) {
   }
 
   async function concluir(tarefa) {
+    // sem perfil carregado eu nao teria onde somar a moeda, entao nem começo
+    if (!perfil) return
+
+    const ganho = calcularGanho(tarefa)
+
+    // o quanto rendeu fica gravado na propria conclusao. é isso que deixa
+    // devolver o valor exato depois, mesmo se a regra da metade tiver batido.
     const { data, error } = await supabase
       .from('conclusao')
       .insert({
         tarefa_id: tarefa.id,
         usuario_id: usuario.id,
         data: dataDeHoje(),
+        moedas: ganho.moedas,
+        xp: ganho.xp,
       })
       .select()
       .single()
@@ -122,6 +209,10 @@ function TelaHoje({ usuario }) {
     }
 
     setConclusoes([...conclusoes, data])
+    mexerNoPerfil(ganho.moedas, ganho.xp)
+
+    const cat = categorias.find((c) => c.id === tarefa.categoria)
+    mostrarGanho(ganho, cat ? cat.nome : '')
   }
 
   async function desconcluir(tarefa) {
@@ -139,9 +230,19 @@ function TelaHoje({ usuario }) {
     }
 
     setConclusoes(conclusoes.filter((c) => c.id !== conclusao.id))
+
+    // devolve exatamente o que essa conclusao tinha dado
+    mexerNoPerfil(-conclusao.moedas, -conclusao.xp)
   }
 
   async function apagarTarefa(tarefa) {
+    // se ela ja tava feita, devolve o ganho antes de sumir. senao dava pra
+    // farmar assim: cria, marca, apaga, cria de novo, marca de novo...
+    const conclusao = conclusoes.find((c) => c.tarefa_id === tarefa.id)
+    if (conclusao) {
+      mexerNoPerfil(-conclusao.moedas, -conclusao.xp)
+    }
+
     setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
     setConclusoes(conclusoes.filter((c) => c.tarefa_id !== tarefa.id))
 
@@ -194,6 +295,11 @@ function TelaHoje({ usuario }) {
             sair
           </button>
         </header>
+
+        <div className="carteira">
+          <span className="carteira-item">🪙 {perfil ? perfil.moedas : 0}</span>
+          <span className="carteira-item">⭐ {perfil ? perfil.xp : 0} XP</span>
+        </div>
 
         <section className="progresso">
           <div className="progresso-texto">
@@ -294,8 +400,23 @@ function TelaHoje({ usuario }) {
           })}
         </ul>
 
-        <footer className="rodape-hoje">dia 3 · tela de hoje</footer>
+        <footer className="rodape-hoje">dia 4 · moeda e xp</footer>
       </div>
+
+      {/* aviso flutuante do que a tarefa rendeu */}
+      {ganhoNaTela && (
+        <div className="ganho">
+          <span className="ganho-valores">
+            +{ganhoNaTela.moedas} 🪙 · +{ganhoNaTela.xp} ⭐
+          </span>
+          {ganhoNaTela.reduzido && (
+            <span className="ganho-recado">
+              já foi bastante {ganhoNaTela.nomeCategoria} hoje 🌱 esse veio
+              menor, mas continua valendo
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

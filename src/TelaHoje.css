@@ -342,3 +342,64 @@
   color: #6e6482;
   letter-spacing: 0.5px;
 }
+
+/* ---------- moeda e xp ---------- */
+.carteira {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.carteira-item {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 9px;
+}
+
+/* ---------- avisinho do ganho ---------- */
+.ganho {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  background: rgba(43, 26, 66, 0.96);
+  border: 1px solid rgba(192, 132, 252, 0.4);
+  border-radius: 14px;
+  padding: 12px 16px;
+  animation: sobe 0.25s ease;
+}
+
+@keyframes sobe {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.ganho-valores {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e9d5ff;
+}
+
+.ganho-recado {
+  font-size: 12px;
+  color: #b9aed1;
+  line-height: 1.45;
+}
