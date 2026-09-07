@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
-import { atributos, dataDeHoje } from './jogo'
+import { atributos, dataDeHoje, tetoDeEnergia } from './jogo'
 import './TelaHoje.css'
 
 // as categorias do jogo. a dificuldade de cada uma tambem vive no trigger
@@ -32,6 +32,7 @@ function TelaHoje({ usuario }) {
   const [perfil, setPerfil] = useState(null)
   const [titulo, setTitulo] = useState('')
   const [categoria, setCategoria] = useState('estudo')
+  const [repete, setRepete] = useState(false)
   const [carregando, setCarregando] = useState(true)
   const [ganhoNaTela, setGanhoNaTela] = useState(null)
 
@@ -44,12 +45,16 @@ function TelaHoje({ usuario }) {
   async function buscarTudo() {
     const hoje = dataDeHoje()
 
-    // as tarefas marcadas pra hoje (data_ref), nao as criadas hoje
+    // as tarefas marcadas pra hoje (data_ref) MAIS as rotinas, que nao
+    // pertencem a um dia so e por isso aparecem todo dia. as arquivadas
+    // ficam de fora sempre.
     const { data: listaTarefas, error: erroTarefas } = await supabase
       .from('tarefa')
       .select('*')
       .eq('usuario_id', usuario.id)
-      .eq('data_ref', hoje)
+      .eq('arquivada', false)
+      .or('data_ref.eq.' + hoje + ',recorrente.eq.true')
+      .order('recorrente', { ascending: false }) // rotinas primeiro
       .order('criada_em', { ascending: true })
 
     // e as conclusoes de hoje, que é o que diz se a tarefa ta feita
@@ -120,13 +125,30 @@ function TelaHoje({ usuario }) {
     }
   }
 
-  // soma (ou devolve, se vier negativo) moeda, xp e atributo no perfil
-  async function mexerNoPerfil(moedas, xp, atributo, pontos) {
+  // quanta energia essa conclusao libera. batido o teto do dia, a tarefa
+  // continua valendo moeda e atributo - so nao da mais fôlego de batalha.
+  function energiaAoConcluir() {
+    return perfil.energia_ganha < tetoDeEnergia ? 1 : 0
+  }
+
+  // so devolve energia se ela ainda estiver na mao. se a tentativa ja foi
+  // gasta na batalha, desmarcar nao tira nada de ninguem - assim nunca fica
+  // negativo nem vira divida que come a energia de uma tarefa futura.
+  function energiaAoDesmarcar() {
+    return perfil.energia > 0 ? -1 : 0
+  }
+
+  // soma (ou devolve, se vier negativo) moeda, xp, atributo e energia
+  async function mexerNoPerfil(moedas, xp, atributo, pontos, energia) {
     if (!perfil) return
 
     const novo = {
       moedas: Math.max(0, perfil.moedas + moedas),
       xp: Math.max(0, perfil.xp + xp),
+      // os dois andam juntos: ganhar sobe o saldo e o contador do teto,
+      // devolver desce os dois (liberando a vaga no teto de novo)
+      energia: Math.max(0, perfil.energia + energia),
+      energia_ganha: Math.max(0, perfil.energia_ganha + energia),
     }
 
     // cada atributo é uma coluna diferente, entao monto a chave na hora
@@ -166,8 +188,9 @@ function TelaHoje({ usuario }) {
         usuario_id: usuario.id,
         titulo: textoLimpo,
         categoria: categoria,
+        // numa rotina o data_ref vira "desde quando ela existe"
         data_ref: dataDeHoje(),
-        recorrente: false,
+        recorrente: repete,
       })
       .select()
       .single()
@@ -179,6 +202,9 @@ function TelaHoje({ usuario }) {
     }
 
     setTitulo('')
+    // desligo o repete de novo de proposito: rotina criada sem querer
+    // volta todo dia e so sai arquivando, entao prefiro pedir de novo
+    setRepete(false)
     setTarefas([...tarefas, data])
   }
 
@@ -218,10 +244,12 @@ function TelaHoje({ usuario }) {
     }
 
     setConclusoes([...conclusoes, data])
-    mexerNoPerfil(ganho.moedas, ganho.xp, ganho.atributo, ganho.pontos)
+
+    const energia = energiaAoConcluir()
+    mexerNoPerfil(ganho.moedas, ganho.xp, ganho.atributo, ganho.pontos, energia)
 
     const cat = categorias.find((c) => c.id === tarefa.categoria)
-    mostrarGanho(ganho, cat ? cat.nome : '')
+    mostrarGanho({ ...ganho, energia: energia }, cat ? cat.nome : '')
   }
 
   async function desconcluir(tarefa) {
@@ -246,7 +274,40 @@ function TelaHoje({ usuario }) {
       -conclusao.xp,
       conclusao.atributo,
       -conclusao.pontos_atributo,
+      energiaAoDesmarcar(),
     )
+  }
+
+  // o mesmo ✕ faz coisas diferentes: tarefa solta some, rotina é arquivada
+  function apagarOuArquivar(tarefa) {
+    if (tarefa.recorrente) {
+      arquivarTarefa(tarefa)
+    } else {
+      apagarTarefa(tarefa)
+    }
+  }
+
+  // parar uma rotina nao apaga nada. as conclusoes antigas continuam no
+  // banco alimentando o heroi, a tarefa so para de aparecer aqui.
+  async function arquivarTarefa(tarefa) {
+    const confirmou = window.confirm(
+      'parar de repetir "' +
+        tarefa.titulo +
+        '"?\n\no que você já fez continua contando pro seu herói.',
+    )
+    if (!confirmou) return
+
+    setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
+
+    const { error } = await supabase
+      .from('tarefa')
+      .update({ arquivada: true })
+      .eq('id', tarefa.id)
+
+    if (error) {
+      console.log('erro ao arquivar a rotina', error)
+      buscarTudo()
+    }
   }
 
   async function apagarTarefa(tarefa) {
@@ -259,6 +320,7 @@ function TelaHoje({ usuario }) {
         -conclusao.xp,
         conclusao.atributo,
         -conclusao.pontos_atributo,
+        energiaAoDesmarcar(),
       )
     }
 
@@ -294,7 +356,10 @@ function TelaHoje({ usuario }) {
     month: 'long',
   })
 
-  const feitas = conclusoes.length
+  // conto pelas tarefas visiveis, nao por conclusoes.length: se eu arquivar
+  // uma rotina ja feita hoje, a conclusao dela continua no banco e o contador
+  // marcaria "3 de 2"
+  const feitas = tarefas.filter((t) => estaFeita(t)).length
   const total = tarefas.length
   const porcentagem = total === 0 ? 0 : (feitas / total) * 100
 
@@ -318,6 +383,9 @@ function TelaHoje({ usuario }) {
         <div className="carteira">
           <span className="carteira-item">🪙 {perfil ? perfil.moedas : 0}</span>
           <span className="carteira-item">⭐ {perfil ? perfil.xp : 0} XP</span>
+          <span className="carteira-item">
+            🔋 {perfil ? perfil.energia : 0}/{tetoDeEnergia}
+          </span>
         </div>
 
 
@@ -369,6 +437,16 @@ function TelaHoje({ usuario }) {
               </button>
             ))}
           </div>
+
+          {/* fica numa linha separada dos chips porque nao é categoria,
+              é outra coisa: se a tarefa volta amanha ou nao */}
+          <button
+            type="button"
+            className={repete ? 'chip-repete chip-repete-ativo' : 'chip-repete'}
+            onClick={() => setRepete(!repete)}
+          >
+            🔁 repete todo dia
+          </button>
         </form>
 
         {carregando && <p className="aviso">carregando suas tarefas...</p>}
@@ -401,17 +479,22 @@ function TelaHoje({ usuario }) {
 
                 <div className="tarefa-texto">
                   <p className="tarefa-titulo">{t.titulo}</p>
-                  {cat && (
-                    <span className={'tarefa-categoria texto-' + t.categoria}>
-                      {cat.emoji} {cat.nome}
-                    </span>
-                  )}
+                  <span className="tarefa-linha-de-baixo">
+                    {cat && (
+                      <span className={'tarefa-categoria texto-' + t.categoria}>
+                        {cat.emoji} {cat.nome}
+                      </span>
+                    )}
+                    {t.recorrente && (
+                      <span className="marca-rotina">🔁 todo dia</span>
+                    )}
+                  </span>
                 </div>
 
                 <button
                   className="botao-apagar"
-                  onClick={() => apagarTarefa(t)}
-                  aria-label="apagar tarefa"
+                  onClick={() => apagarOuArquivar(t)}
+                  aria-label={t.recorrente ? 'parar de repetir' : 'apagar tarefa'}
                 >
                   ✕
                 </button>
@@ -420,7 +503,7 @@ function TelaHoje({ usuario }) {
           })}
         </ul>
 
-        <footer className="rodape-hoje">dia 6 · tela do heroi</footer>
+        <footer className="rodape-hoje">dia 9 · energia</footer>
       </div>
 
       {/* aviso flutuante do que a tarefa rendeu */}
@@ -434,6 +517,7 @@ function TelaHoje({ usuario }) {
                 · +{ganhoNaTela.pontos} {atributos[ganhoNaTela.atributo].emoji}
               </>
             )}
+            {ganhoNaTela.energia > 0 && <> · +1 🔋</>}
           </span>
           {ganhoNaTela.reduzido && (
             <span className="ganho-recado">

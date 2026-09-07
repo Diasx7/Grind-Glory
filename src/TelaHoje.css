@@ -406,3 +406,45 @@
   line-height: 1.45;
 }
 
+
+/* ---------- toggle "repete todo dia" ---------- */
+.chip-repete {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: #6e6482;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip-repete:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ligado ele vira linha cheia e acende, pra nao passar batido que a
+   tarefa vai voltar todo dia */
+.chip-repete-ativo {
+  border-style: solid;
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
+  color: #f1eaff;
+}
+
+/* ---------- marca de rotina na lista ---------- */
+.tarefa-linha-de-baixo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* discreto de proposito: informa sem competir com o titulo da tarefa */
+.marca-rotina {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #6e6482;
+  margin-top: 5px;
+}

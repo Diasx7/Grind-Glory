@@ -203,3 +203,8 @@
   color: #6e6482;
   letter-spacing: 0.5px;
 }
+
+/* com a energia entrando, sao 3 itens - deixa quebrar linha no celular */
+.heroi-bolsos {
+  flex-wrap: wrap;
+}

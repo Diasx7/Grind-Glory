@@ -7,9 +7,13 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 3:** tela Hoje — criar, listar e marcar tarefa
 - **Dia 4:** moeda e XP por dificuldade, com retorno decrescente
 - **Dia 5:** atributos subindo por categoria
-- **Dia 6:** tela do Herói — o espelho (esse aqui)
+- **Dia 6:** tela do Herói — o espelho
+- **Dia 7:** rotinas que voltam todo dia
+- **Dia 8:** batalha automática movida pelos atributos
+- **Dia 9:** energia — o jogo só anda se você cumprir coisas (esse aqui)
 
-Ainda não tem loja, equipamento ou batalha — isso vem nos próximos dias.
+Ainda não tem loja nem equipamento — o que decide a batalha é só o que
+você fez na vida real.
 
 ## Stack
 
@@ -34,14 +38,24 @@ npm install
 
 ### 3. Criar as tabelas
 
-1. No menu da esquerda, entra em **SQL Editor**
-2. Abre o arquivo [`supabase/schema.sql`](supabase/schema.sql) desse
-   projeto, copia tudo e cola lá
-3. Clica em **Run**
+No menu da esquerda, entra em **SQL Editor** e roda os cinco arquivos
+**nessa ordem**, um de cada vez (copia o conteúdo, cola e clica em
+**Run**):
 
-Isso cria a tabela `usuario` (perfil do jogador) e a tabela `tarefa`, já
-com as regras de segurança (cada pessoa só vê e mexe nas próprias
-tarefas).
+1. [`supabase/schema.sql`](supabase/schema.sql) — as tabelas `usuario` e
+   `tarefa`, já com as regras de segurança (cada pessoa só vê e mexe nas
+   próprias coisas)
+2. [`supabase/migracao_dia4.sql`](supabase/migracao_dia4.sql) — a tabela
+   `conclusao` (o histórico), o `data_ref` e o trigger da dificuldade
+3. [`supabase/migracao_dia7.sql`](supabase/migracao_dia7.sql) — a coluna
+   `arquivada`, pra parar uma rotina sem apagar o histórico dela
+4. [`supabase/migracao_dia8.sql`](supabase/migracao_dia8.sql) — a coluna
+   `fase`, que guarda até onde a batalha chegou
+5. [`supabase/migracao_dia9.sql`](supabase/migracao_dia9.sql) — as colunas
+   de energia, que é o que a batalha gasta pra tentar
+
+Só o primeiro arquivo **não** deixa o banco atualizado — o app quebra sem
+os outros quatro.
 
 ### 4. Pegar a URL e a chave
 

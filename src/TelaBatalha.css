@@ -1,0 +1,270 @@
+/* tela de batalha - mesmo clima das outras, celular primeiro */
+.tela-batalha {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #f1eaff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.brilho-batalha {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.conteudo-batalha {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  /* o padding de baixo é grande por causa da barra de abas fixa */
+  padding: 28px 20px 100px;
+}
+
+.batalha-aviso {
+  color: #b9aed1;
+  font-size: 14px;
+  text-align: center;
+  padding-top: 60px;
+}
+
+.fase-atual {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #c084fc;
+  margin-bottom: 20px;
+}
+
+/* ---------- os dois lutadores lado a lado ---------- */
+.arena {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 20px 16px;
+  margin-bottom: 18px;
+}
+
+.lutador {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.lutador-carinha {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.lutador-nome {
+  font-size: 12px;
+  color: #b9aed1;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  min-height: 32px;
+}
+
+.versus {
+  color: #6e6482;
+  font-size: 18px;
+  padding-top: 28px;
+}
+
+.barra-vida {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.barra-vida-cheia {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.vida-heroi {
+  background: linear-gradient(90deg, #4a9c6d, #6fd39b);
+}
+
+.vida-monstro {
+  background: linear-gradient(90deg, #b8434f, #ff8095);
+}
+
+.lutador-vida {
+  font-size: 11px;
+  color: #6e6482;
+  margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- de onde vem cada numero da luta ---------- */
+.poderes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.poder {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #b9aed1;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.poder b {
+  color: #f1eaff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- botao de lutar ---------- */
+.botao-lutar {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 15px;
+  cursor: pointer;
+}
+
+.botao-lutar:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.botao-lutar:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---------- resultado ---------- */
+.resultado {
+  margin-top: 18px;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.resultado-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.resultado-texto {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #b9aed1;
+}
+
+.resultado-vitoria {
+  background: rgba(111, 211, 155, 0.12);
+  border: 1px solid rgba(111, 211, 155, 0.35);
+}
+
+/* derrota em roxo, nao em vermelho: é convite pra voltar, nao erro */
+.resultado-derrota {
+  background: rgba(192, 132, 252, 0.1);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+}
+
+.resultado-derrota .resultado-titulo {
+  color: #c084fc;
+}
+
+/* ---------- os turnos ---------- */
+.turnos {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.turno {
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  animation: aparece 0.25s ease;
+}
+
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.turno-heroi {
+  color: #6fd39b;
+}
+
+.turno-monstro {
+  color: #ff8095;
+}
+
+.turno-esquiva {
+  color: #f0b46a;
+}
+
+.rodape-batalha {
+  margin-top: 36px;
+  text-align: center;
+  font-size: 12px;
+  color: #6e6482;
+  letter-spacing: 0.5px;
+}
+
+/* ---------- energia ---------- */
+.energia-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #b9aed1;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 11px 12px;
+  margin-bottom: 12px;
+}
+
+.energia-linha b {
+  color: #f1eaff;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* roxo e nao vermelho: falta de energia é convite, nao erro */
+.sem-energia {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c084fc;
+}

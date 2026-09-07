@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { atributos } from './jogo'
+import { atributos, carinhaDoHeroi, tetoDeEnergia } from './jogo'
 import './TelaHeroi.css'
 
 // um convite curto por atributo, pra quando ele ta parado ha dias.
@@ -100,14 +100,6 @@ function TelaHeroi({ usuario }) {
   const nivel = calcularNivel(perfil.xp)
   const nome = usuario.email.split('@')[0]
 
-  // a cara do heroi segue o atributo mais forte - ele é um espelho, afinal
-  function carinha() {
-    if (total === 0) return '🥚'
-    if (maior === perfil.inteligencia) return '🧙'
-    if (maior === perfil.forca) return '🗡️'
-    return '🏹'
-  }
-
   // a frase que nomeia o desequilibrio. constata, nao cobra.
   function fraseDoEspelho() {
     // se o mais esquecido ja tem 60% do mais forte, ta bem distribuido
@@ -161,7 +153,7 @@ function TelaHeroi({ usuario }) {
 
       <div className="conteudo-heroi">
         <div className="cartao-heroi">
-          <div className="heroi-carinha">{carinha()}</div>
+          <div className="heroi-carinha">{carinhaDoHeroi(perfil)}</div>
           <p className="heroi-nome">{nome}</p>
           <p className="heroi-nivel">Nível {nivel.nivel}</p>
 
@@ -177,7 +169,10 @@ function TelaHeroi({ usuario }) {
 
           <div className="heroi-bolsos">
             <span>🪙 {perfil.moedas} moedas</span>
-            <span>⭐ {perfil.xp} XP no total</span>
+            <span>⭐ {perfil.xp} XP</span>
+            <span>
+              🔋 {perfil.energia}/{tetoDeEnergia}
+            </span>
           </div>
         </div>
 

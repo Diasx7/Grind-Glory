@@ -1,8 +1,10 @@
  import { useState, useEffect } from 'react'
 import { supabase, supabaseConfigurado } from './supabaseClient'
+import { dataDeHoje } from './jogo'
 import Login from './Login'
 import TelaHoje from './TelaHoje'
 import TelaHeroi from './TelaHeroi'
+import TelaBatalha from './TelaBatalha'
 import './App.css'
 
 function App() {
@@ -44,7 +46,7 @@ function App() {
   async function criarUsuarioSeNaoExiste() {
     const { data } = await supabase
       .from('usuario')
-      .select('id')
+      .select('id, energia_data')
       .eq('id', sessao.user.id)
       .maybeSingle()
 
@@ -52,6 +54,7 @@ function App() {
       const { error } = await supabase.from('usuario').insert({
         id: sessao.user.id,
         nome: sessao.user.email,
+        energia_data: dataDeHoje(),
       })
 
       // se falhar aqui, salvar tarefa depois da erro de "foreign key",
@@ -59,9 +62,27 @@ function App() {
       if (error) {
         console.log('erro ao criar o usuario', error)
       }
+    } else {
+      await zerarEnergiaSeVirouODia(data)
     }
 
     setPerfilPronto(true)
+  }
+
+  // energia é do dia e NAO acumula: senao daria pra guardar 40 tentativas
+  // a semana inteira e zerar o jogo num sabado a tarde.
+  // faço isso aqui porque o App roda uma vez so, antes das telas abrirem.
+  async function zerarEnergiaSeVirouODia(perfil) {
+    if (perfil.energia_data === dataDeHoje()) return
+
+    const { error } = await supabase
+      .from('usuario')
+      .update({ energia: 0, energia_ganha: 0, energia_data: dataDeHoje() })
+      .eq('id', sessao.user.id)
+
+    if (error) {
+      console.log('erro ao zerar a energia do dia', error)
+    }
   }
 
   // se ja ta logado, a tela de hoje toma conta do app inteiro
@@ -75,11 +96,9 @@ function App() {
 
     return (
       <>
-        {aba === 'hoje' ? (
-          <TelaHoje usuario={sessao.user} />
-        ) : (
-          <TelaHeroi usuario={sessao.user} />
-        )}
+        {aba === 'hoje' && <TelaHoje usuario={sessao.user} />}
+        {aba === 'heroi' && <TelaHeroi usuario={sessao.user} />}
+        {aba === 'batalha' && <TelaBatalha usuario={sessao.user} />}
 
         {/* barrinha de navegacao fixa embaixo, que nem app de celular.
             trocar de aba desmonta a outra tela, entao ela sempre volta
@@ -98,6 +117,13 @@ function App() {
           >
             <span className="aba-emoji">🛡️</span>
             Herói
+          </button>
+          <button
+            className={aba === 'batalha' ? 'aba aba-ativa' : 'aba'}
+            onClick={() => setAba('batalha')}
+          >
+            <span className="aba-emoji">⚔️</span>
+            Batalha
           </button>
         </nav>
       </>
