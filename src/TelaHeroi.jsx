@@ -44,17 +44,28 @@ function TelaHeroi({ usuario }) {
   const [perfil, setPerfil] = useState(null)
   const [ultimaVez, setUltimaVez] = useState({})
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(false)
 
   useEffect(() => {
     buscarHeroi()
   }, [])
 
   async function buscarHeroi() {
-    const { data: dadosPerfil } = await supabase
+    setCarregando(true)
+    setErro(false)
+
+    const { data: dadosPerfil, error: erroPerfil } = await supabase
       .from('usuario')
       .select('*')
       .eq('id', usuario.id)
       .maybeSingle()
+
+    if (erroPerfil) {
+      console.log('erro ao buscar o perfil', erroPerfil)
+      setErro(true)
+      setCarregando(false)
+      return
+    }
 
     // o historico inteiro, so as duas colunas que interessam. ja vem do mais
     // novo pro mais velho, entao a primeira linha de cada atributo é a ultima
@@ -65,6 +76,8 @@ function TelaHeroi({ usuario }) {
       .eq('usuario_id', usuario.id)
       .order('data', { ascending: false })
 
+    // o historico é só o texto "faz X dias" - se falhar, a tela ainda
+    // funciona sem esse recado, entao nao precisa travar tudo por isso
     if (error) {
       console.log('erro ao buscar o historico', error)
     }
@@ -83,10 +96,23 @@ function TelaHeroi({ usuario }) {
     setCarregando(false)
   }
 
-  if (carregando || !perfil) {
+  if (carregando) {
     return (
       <div className="tela-heroi">
         <p className="heroi-aviso">carregando seu herói...</p>
+      </div>
+    )
+  }
+
+  if (erro || !perfil) {
+    return (
+      <div className="tela-heroi">
+        <div className="heroi-erro">
+          <p className="heroi-aviso">não consegui carregar seu herói. confere sua internet.</p>
+          <button className="botao-tentar-de-novo" onClick={buscarHeroi}>
+            tentar de novo
+          </button>
+        </div>
       </div>
     )
   }
@@ -227,8 +253,6 @@ function TelaHeroi({ usuario }) {
             )
           })}
         </div>
-
-        <footer className="rodape-heroi">dia 6 · tela do herói</footer>
       </div>
     </div>
   )

@@ -10,7 +10,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 6:** tela do Herói — o espelho
 - **Dia 7:** rotinas que voltam todo dia
 - **Dia 8:** batalha automática movida pelos atributos
-- **Dia 9:** energia — o jogo só anda se você cumprir coisas (esse aqui)
+- **Dia 9:** energia — o jogo só anda se você cumprir coisas
+- **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia (esse aqui)
 
 Ainda não tem loja nem equipamento — o que decide a batalha é só o que
 você fez na vida real.
@@ -179,10 +180,20 @@ A lista `categorias` do `TelaHoje.jsx` e o `case` do trigger
 Se saírem de sincronia, a tela mostra um ganho e o banco grava a
 dificuldade de outro.
 
-### Sem tratamento de virada de dia com o app aberto
-O "hoje" é calculado quando a tela monta. Se deixar o app aberto
-atravessando a meia-noite, ele continua mostrando o dia anterior até
-recarregar.
+### ~~Sem tratamento de virada de dia com o app aberto~~ (resolvido no dia 10)
+O "hoje" era calculado só quando a tela montava. Agora o `App.jsx` fica de
+olho (`visibilitychange` + um intervalo de reforço) e, quando o dia muda,
+avisa a `TelaHoje` via prop pra ela buscar tudo de novo e reseta a energia
+do dia. `TelaHeroi` e `TelaBatalha` não recebem esse aviso — não é grave,
+porque toda troca de aba já remonta a tela e busca os dados atuais.
+
+### `gastarEnergia()` na batalha não segura o resultado
+`comecarLuta()` chama `gastarEnergia()` sem esperar ela terminar, e a luta
+roda mesmo que aquele `update` no banco falhe. Só acontece se a escrita
+falhar bem naquela hora (raro), mas o resultado seria uma luta acontecendo
+sem ter descontado a energia de verdade no banco. Não mexi porque exigiria
+travar a luta até confirmar o gasto, e isso muda o "feel" de resposta
+imediata do botão - fica pra quando isso incomodar de verdade.
 
 ### A coluna `usuario.nivel` está morta
 Ela existe desde o dia 2 mas nunca foi escrita — está em `1` pra todo

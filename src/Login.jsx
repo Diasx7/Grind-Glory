@@ -15,6 +15,9 @@ function traduzirErro(mensagem) {
   if (mensagem.includes('Email not confirmed')) {
     return 'esse email ainda não foi confirmado.'
   }
+  if (mensagem.includes('Failed to fetch')) {
+    return 'não consegui falar com o servidor. confere sua internet e tenta de novo.'
+  }
   return mensagem
 }
 

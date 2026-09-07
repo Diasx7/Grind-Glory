@@ -26,7 +26,7 @@ const recompensas = {
 // metade. nao bloqueia nada, so tira a graça de picar uma tarefa em dez.
 const limiteSemDesconto = 3
 
-function TelaHoje({ usuario }) {
+function TelaHoje({ usuario, diaAtual }) {
   const [tarefas, setTarefas] = useState([])
   const [conclusoes, setConclusoes] = useState([])
   const [perfil, setPerfil] = useState(null)
@@ -34,15 +34,31 @@ function TelaHoje({ usuario }) {
   const [categoria, setCategoria] = useState('estudo')
   const [repete, setRepete] = useState(false)
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(false)
+  const [erroForm, setErroForm] = useState('')
   const [ganhoNaTela, setGanhoNaTela] = useState(null)
+  const [emAndamento, setEmAndamento] = useState({})
 
   const tempoDoGanho = useRef(null)
 
+  // espelho do perfil, mas atualizado na hora (nao espera o re-render).
+  // sem isso, marcar duas tarefas bem rapido fazia a segunda leitura pegar
+  // o perfil desatualizado e a primeira recompensa se perdia.
+  const perfilRef = useRef(null)
+
+  function definirPerfil(novo) {
+    perfilRef.current = novo
+    setPerfil(novo)
+  }
+
   useEffect(() => {
     buscarTudo()
-  }, [])
+    // busca de novo quando o dia vira (o App avisa via diaAtual), senao a
+    // lista continuava mostrando as tarefas de ontem com o app aberto
+  }, [diaAtual])
 
   async function buscarTudo() {
+    setErro(false)
     const hoje = dataDeHoje()
 
     // as tarefas marcadas pra hoje (data_ref) MAIS as rotinas, que nao
@@ -66,21 +82,22 @@ function TelaHoje({ usuario }) {
 
     // maybeSingle porque no primeiro login o App ainda pode estar criando
     // essa linha; se vier null a tela so nao deixa concluir por um segundo
-    const { data: dadosPerfil } = await supabase
+    const { data: dadosPerfil, error: erroPerfil } = await supabase
       .from('usuario')
       .select('*')
       .eq('id', usuario.id)
       .maybeSingle()
 
-    if (erroTarefas || erroConclusoes) {
-      console.log('erro ao buscar', erroTarefas || erroConclusoes)
+    if (erroTarefas || erroConclusoes || erroPerfil) {
+      console.log('erro ao buscar', erroTarefas || erroConclusoes || erroPerfil)
+      setErro(true)
       setCarregando(false)
       return
     }
 
     setTarefas(listaTarefas)
     setConclusoes(listaConclusoes)
-    setPerfil(dadosPerfil)
+    definirPerfil(dadosPerfil)
     setCarregando(false)
   }
 
@@ -127,36 +144,41 @@ function TelaHoje({ usuario }) {
 
   // quanta energia essa conclusao libera. batido o teto do dia, a tarefa
   // continua valendo moeda e atributo - so nao da mais fôlego de batalha.
+  // le da ref (nao do estado) pelo mesmo motivo do mexerNoPerfil ali embaixo.
   function energiaAoConcluir() {
-    return perfil.energia_ganha < tetoDeEnergia ? 1 : 0
+    return perfilRef.current.energia_ganha < tetoDeEnergia ? 1 : 0
   }
 
   // so devolve energia se ela ainda estiver na mao. se a tentativa ja foi
   // gasta na batalha, desmarcar nao tira nada de ninguem - assim nunca fica
   // negativo nem vira divida que come a energia de uma tarefa futura.
   function energiaAoDesmarcar() {
-    return perfil.energia > 0 ? -1 : 0
+    return perfilRef.current.energia > 0 ? -1 : 0
   }
 
-  // soma (ou devolve, se vier negativo) moeda, xp, atributo e energia
+  // soma (ou devolve, se vier negativo) moeda, xp, atributo e energia.
+  // parte da perfilRef, nao do estado "perfil": o estado so atualiza no
+  // proximo render, entao marcar duas tarefas rapido faria a segunda conta
+  // usar o mesmo numero de base da primeira e uma das recompensas sumiria.
   async function mexerNoPerfil(moedas, xp, atributo, pontos, energia) {
-    if (!perfil) return
+    const base = perfilRef.current
+    if (!base) return
 
     const novo = {
-      moedas: Math.max(0, perfil.moedas + moedas),
-      xp: Math.max(0, perfil.xp + xp),
+      moedas: Math.max(0, base.moedas + moedas),
+      xp: Math.max(0, base.xp + xp),
       // os dois andam juntos: ganhar sobe o saldo e o contador do teto,
       // devolver desce os dois (liberando a vaga no teto de novo)
-      energia: Math.max(0, perfil.energia + energia),
-      energia_ganha: Math.max(0, perfil.energia_ganha + energia),
+      energia: Math.max(0, base.energia + energia),
+      energia_ganha: Math.max(0, base.energia_ganha + energia),
     }
 
     // cada atributo é uma coluna diferente, entao monto a chave na hora
     if (atributo) {
-      novo[atributo] = Math.max(0, perfil[atributo] + pontos)
+      novo[atributo] = Math.max(0, base[atributo] + pontos)
     }
 
-    setPerfil({ ...perfil, ...novo })
+    definirPerfil({ ...base, ...novo })
 
     const { error } = await supabase
       .from('usuario')
@@ -177,6 +199,7 @@ function TelaHoje({ usuario }) {
 
   async function criarTarefa(e) {
     e.preventDefault()
+    setErroForm('')
 
     const textoLimpo = titulo.trim()
     if (!textoLimpo) return
@@ -197,7 +220,7 @@ function TelaHoje({ usuario }) {
 
     if (error) {
       console.log('erro ao criar tarefa', error)
-      alert('nao consegui salvar essa tarefa, tenta de novo')
+      setErroForm('não consegui salvar essa tarefa, tenta de novo')
       return
     }
 
@@ -209,6 +232,10 @@ function TelaHoje({ usuario }) {
   }
 
   function marcarTarefa(tarefa) {
+    // ja tem uma marcacao dessa tarefa em andamento - ignora o clique extra
+    // (evita o duplo toque contar a recompensa duas vezes)
+    if (emAndamento[tarefa.id]) return
+
     if (estaFeita(tarefa)) {
       desconcluir(tarefa)
     } else {
@@ -219,6 +246,8 @@ function TelaHoje({ usuario }) {
   async function concluir(tarefa) {
     // sem perfil carregado eu nao teria onde somar a moeda, entao nem começo
     if (!perfil) return
+
+    setEmAndamento((atual) => ({ ...atual, [tarefa.id]: true }))
 
     const ganho = calcularGanho(tarefa)
 
@@ -240,21 +269,27 @@ function TelaHoje({ usuario }) {
 
     if (error) {
       console.log('erro ao concluir', error)
+      setEmAndamento((atual) => ({ ...atual, [tarefa.id]: false }))
       return
     }
 
-    setConclusoes([...conclusoes, data])
+    // forma funcional: se duas tarefas forem marcadas quase juntas, cada
+    // setConclusoes pega a lista mais nova em vez de duas partindo da mesma base
+    setConclusoes((atual) => [...atual, data])
 
     const energia = energiaAoConcluir()
     mexerNoPerfil(ganho.moedas, ganho.xp, ganho.atributo, ganho.pontos, energia)
 
     const cat = categorias.find((c) => c.id === tarefa.categoria)
     mostrarGanho({ ...ganho, energia: energia }, cat ? cat.nome : '')
+    setEmAndamento((atual) => ({ ...atual, [tarefa.id]: false }))
   }
 
   async function desconcluir(tarefa) {
     const conclusao = conclusoes.find((c) => c.tarefa_id === tarefa.id)
     if (!conclusao) return
+
+    setEmAndamento((atual) => ({ ...atual, [tarefa.id]: true }))
 
     const { error } = await supabase
       .from('conclusao')
@@ -263,10 +298,12 @@ function TelaHoje({ usuario }) {
 
     if (error) {
       console.log('erro ao desconcluir', error)
+      setEmAndamento((atual) => ({ ...atual, [tarefa.id]: false }))
       return
     }
 
-    setConclusoes(conclusoes.filter((c) => c.id !== conclusao.id))
+    setConclusoes((atual) => atual.filter((c) => c.id !== conclusao.id))
+    setEmAndamento((atual) => ({ ...atual, [tarefa.id]: false }))
 
     // devolve exatamente o que essa conclusao tinha dado
     mexerNoPerfil(
@@ -325,7 +362,7 @@ function TelaHoje({ usuario }) {
     }
 
     setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
-    setConclusoes(conclusoes.filter((c) => c.tarefa_id !== tarefa.id))
+    setConclusoes((atual) => atual.filter((c) => c.tarefa_id !== tarefa.id))
 
     // o banco apaga a conclusao junto por causa do "on delete cascade"
     const { error } = await supabase.from('tarefa').delete().eq('id', tarefa.id)
@@ -447,11 +484,24 @@ function TelaHoje({ usuario }) {
           >
             🔁 repete todo dia
           </button>
+
+          {erroForm && <p className="erro-form">{erroForm}</p>}
         </form>
 
         {carregando && <p className="aviso">carregando suas tarefas...</p>}
 
-        {!carregando && total === 0 && (
+        {!carregando && erro && (
+          <div className="vazio">
+            <div className="vazio-emoji">📡</div>
+            <p className="vazio-titulo">não consegui carregar suas tarefas</p>
+            <p className="vazio-texto">confere sua internet e tenta de novo.</p>
+            <button className="botao-tentar-de-novo" onClick={buscarTudo}>
+              tentar de novo
+            </button>
+          </div>
+        )}
+
+        {!carregando && !erro && total === 0 && (
           <div className="vazio">
             <div className="vazio-emoji">🌙</div>
             <p className="vazio-titulo">nenhuma missão por hoje</p>
@@ -472,6 +522,7 @@ function TelaHoje({ usuario }) {
                 <button
                   className={'marcador cor-' + t.categoria}
                   onClick={() => marcarTarefa(t)}
+                  disabled={!!emAndamento[t.id]}
                   aria-label={feita ? 'desmarcar' : 'marcar como feita'}
                 >
                   {feita ? '✓' : ''}
@@ -502,8 +553,6 @@ function TelaHoje({ usuario }) {
             )
           })}
         </ul>
-
-        <footer className="rodape-hoje">dia 9 · energia</footer>
       </div>
 
       {/* aviso flutuante do que a tarefa rendeu */}

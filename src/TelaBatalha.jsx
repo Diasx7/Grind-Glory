@@ -106,6 +106,7 @@ function TelaBatalha({ usuario }) {
   const [perfil, setPerfil] = useState(null)
   const [fase, setFase] = useState(1)
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(false)
   const [turnosNaTela, setTurnosNaTela] = useState([])
   const [lutando, setLutando] = useState(false)
   const [resultado, setResultado] = useState(null)
@@ -120,11 +121,21 @@ function TelaBatalha({ usuario }) {
   }, [])
 
   async function buscarPerfil() {
-    const { data } = await supabase
+    setCarregando(true)
+    setErro(false)
+
+    const { data, error } = await supabase
       .from('usuario')
       .select('*')
       .eq('id', usuario.id)
       .maybeSingle()
+
+    if (error) {
+      console.log('erro ao buscar o perfil da batalha', error)
+      setErro(true)
+      setCarregando(false)
+      return
+    }
 
     if (data) {
       setPerfil(data)
@@ -195,10 +206,23 @@ function TelaBatalha({ usuario }) {
     }, 500)
   }
 
-  if (carregando || !perfil) {
+  if (carregando) {
     return (
       <div className="tela-batalha">
         <p className="batalha-aviso">preparando a arena...</p>
+      </div>
+    )
+  }
+
+  if (erro || !perfil) {
+    return (
+      <div className="tela-batalha">
+        <div className="batalha-erro">
+          <p className="batalha-aviso">não consegui preparar a arena. confere sua internet.</p>
+          <button className="botao-tentar-de-novo" onClick={buscarPerfil}>
+            tentar de novo
+          </button>
+        </div>
       </div>
     )
   }
@@ -319,8 +343,6 @@ function TelaBatalha({ usuario }) {
             ))}
           </div>
         )}
-
-        <footer className="rodape-batalha">dia 8 · batalha</footer>
       </div>
     </div>
   )

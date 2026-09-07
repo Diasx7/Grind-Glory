@@ -11,7 +11,9 @@ function App() {
   const [sessao, setSessao] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [perfilPronto, setPerfilPronto] = useState(false)
+  const [erroPerfil, setErroPerfil] = useState(false)
   const [aba, setAba] = useState('hoje')
+  const [diaAtual, setDiaAtual] = useState(dataDeHoje())
 
   useEffect(() => {
     // se o .env ainda nao foi preenchido, nem tenta falar com o supabase
@@ -34,21 +36,52 @@ function App() {
     return () => escuta.subscription.unsubscribe()
   }, [])
 
+  // fica de olho se o dia virou com o app aberto (o classico: celular ficou
+  // a noite toda com a aba aberta e a pessoa volta de manha). sem isso a
+  // tela Hoje ficava presa no dia anterior ate recarregar a pagina.
+  useEffect(() => {
+    function verificarViradaDeDia() {
+      const hoje = dataDeHoje()
+      if (hoje !== diaAtual) {
+        setDiaAtual(hoje)
+      }
+    }
+
+    // visibilitychange pega o caso real (voltar pro app de manha).
+    // o intervalo é so um reforço pra quem deixa o app aberto na tela o dia inteiro.
+    document.addEventListener('visibilitychange', verificarViradaDeDia)
+    const intervalo = setInterval(verificarViradaDeDia, 60000)
+
+    return () => {
+      document.removeEventListener('visibilitychange', verificarViradaDeDia)
+      clearInterval(intervalo)
+    }
+  }, [diaAtual])
+
   useEffect(() => {
     if (sessao) {
       criarUsuarioSeNaoExiste()
     } else {
       setPerfilPronto(false)
     }
-  }, [sessao])
+    // roda de novo quando o dia vira, pra zerar a energia sem precisar recarregar
+  }, [sessao, diaAtual])
 
   // se é a primeira vez que essa pessoa loga, cria a linha dela na tabela usuario
   async function criarUsuarioSeNaoExiste() {
-    const { data } = await supabase
+    setErroPerfil(false)
+
+    const { data, error: erroBusca } = await supabase
       .from('usuario')
       .select('id, energia_data')
       .eq('id', sessao.user.id)
       .maybeSingle()
+
+    if (erroBusca) {
+      console.log('erro ao buscar o usuario', erroBusca)
+      setErroPerfil(true)
+      return
+    }
 
     if (!data) {
       const { error } = await supabase.from('usuario').insert({
@@ -57,10 +90,12 @@ function App() {
         energia_data: dataDeHoje(),
       })
 
-      // se falhar aqui, salvar tarefa depois da erro de "foreign key",
-      // entao deixo o motivo real aparecer no console
+      // se falhar aqui, marcar tarefa nao ia fazer nada depois (sem perfil
+      // pra somar moeda) e a pessoa ficaria sem entender o motivo
       if (error) {
         console.log('erro ao criar o usuario', error)
+        setErroPerfil(true)
+        return
       }
     } else {
       await zerarEnergiaSeVirouODia(data)
@@ -87,6 +122,19 @@ function App() {
 
   // se ja ta logado, a tela de hoje toma conta do app inteiro
   if (supabaseConfigurado && !carregando && sessao) {
+    if (erroPerfil) {
+      return (
+        <div className="tela-carregando">
+          <div className="carregando-erro">
+            <p>não consegui preparar seu herói. confere sua internet.</p>
+            <button className="botao-tentar-de-novo" onClick={criarUsuarioSeNaoExiste}>
+              tentar de novo
+            </button>
+          </div>
+        </div>
+      )
+    }
+
     // numa conta recem criada a linha do usuario ainda ta sendo inserida.
     // se a TelaHoje abrisse antes, ela leria perfil vazio e marcar tarefa
     // nao somaria moeda nenhuma.
@@ -96,7 +144,7 @@ function App() {
 
     return (
       <>
-        {aba === 'hoje' && <TelaHoje usuario={sessao.user} />}
+        {aba === 'hoje' && <TelaHoje usuario={sessao.user} diaAtual={diaAtual} />}
         {aba === 'heroi' && <TelaHeroi usuario={sessao.user} />}
         {aba === 'batalha' && <TelaBatalha usuario={sessao.user} />}
 
@@ -160,8 +208,6 @@ function App() {
         {supabaseConfigurado && carregando && <p>carregando...</p>}
         {supabaseConfigurado && !carregando && !sessao && <Login />}
       </div>
-
-      <footer className="rodape">dia 3 · tela de hoje</footer>
     </div>
   )
 }

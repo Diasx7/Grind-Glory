@@ -35,6 +35,32 @@
   padding-top: 60px;
 }
 
+.heroi-erro {
+  text-align: center;
+  padding-top: 60px;
+}
+
+.heroi-erro .heroi-aviso {
+  padding-top: 0;
+}
+
+/* botao de "tentar de novo" quando uma busca falha */
+.botao-tentar-de-novo {
+  margin-top: 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f1eaff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botao-tentar-de-novo:hover {
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
 /* ---------- cartao de cima: carinha, nivel, xp, moeda ---------- */
 .cartao-heroi {
   text-align: center;
@@ -194,14 +220,6 @@
    nao em vermelho: é convite, nao alerta de erro */
 .recado-chamando {
   color: #c084fc;
-}
-
-.rodape-heroi {
-  margin-top: 36px;
-  text-align: center;
-  font-size: 12px;
-  color: #6e6482;
-  letter-spacing: 0.5px;
 }
 
 /* com a energia entrando, sao 3 itens - deixa quebrar linha no celular */
