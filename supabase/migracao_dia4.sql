@@ -87,7 +87,7 @@ create policy "usuario apaga a propria conclusao"
 -- o banco reescreve o que o app mandar, entao nao adianta chamar a API
 -- na mao com dificuldade 3 pra ganhar mais moeda.
 -- ATENCAO: essa tabelinha tem que bater com a lista `categorias` do
--- TelaHoje.jsx. mexeu num lugar, mexe no outro.
+-- jogo.js. mexeu num lugar, mexe no outro.
 -- ---------------------------------------------------------------
 create or replace function aplicar_dificuldade()
 returns trigger
