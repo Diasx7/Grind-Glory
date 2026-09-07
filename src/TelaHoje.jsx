@@ -427,7 +427,9 @@ function TelaHoje({ usuario, diaAtual }) {
     return 'Boa noite'
   }
 
-  const nome = usuario.email.split('@')[0]
+  // enquanto o perfil ainda ta carregando cai no pedaço do email, so pra
+  // nao aparecer em branco por um instante
+  const nome = (perfil && perfil.nome) || usuario.email.split('@')[0]
 
   const dataFormatada = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',

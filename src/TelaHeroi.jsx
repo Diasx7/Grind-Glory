@@ -46,6 +46,13 @@ function TelaHeroi({ usuario }) {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 
+  // edicao do nome, pra quem criou conta antes de ter esse campo
+  // (ou so quer trocar) e ficou com o email inteiro como nome
+  const [editandoNome, setEditandoNome] = useState(false)
+  const [nomeEditado, setNomeEditado] = useState('')
+  const [salvandoNome, setSalvandoNome] = useState(false)
+  const [erroNome, setErroNome] = useState('')
+
   useEffect(() => {
     buscarHeroi()
   }, [])
@@ -124,7 +131,39 @@ function TelaHeroi({ usuario }) {
   const total = valores.reduce((a, b) => a + b, 0)
 
   const nivel = calcularNivel(perfil.xp)
-  const nome = usuario.email.split('@')[0]
+  const nome = perfil.nome || usuario.email.split('@')[0]
+
+  function comecarEditarNome() {
+    setErroNome('')
+    setNomeEditado(perfil.nome || '')
+    setEditandoNome(true)
+  }
+
+  async function salvarNome(e) {
+    e.preventDefault()
+
+    const nomeLimpo = nomeEditado.trim()
+    if (!nomeLimpo) return
+
+    setErroNome('')
+    setSalvandoNome(true)
+
+    const { error } = await supabase
+      .from('usuario')
+      .update({ nome: nomeLimpo })
+      .eq('id', usuario.id)
+
+    setSalvandoNome(false)
+
+    if (error) {
+      console.log('erro ao salvar o nome', error)
+      setErroNome('não consegui salvar, tenta de novo')
+      return
+    }
+
+    setPerfil({ ...perfil, nome: nomeLimpo })
+    setEditandoNome(false)
+  }
 
   // a frase que nomeia o desequilibrio. constata, nao cobra.
   function fraseDoEspelho() {
@@ -180,7 +219,39 @@ function TelaHeroi({ usuario }) {
       <div className="conteudo-heroi">
         <div className="cartao-heroi">
           <div className="heroi-carinha">{carinhaDoHeroi(perfil)}</div>
-          <p className="heroi-nome">{nome}</p>
+
+          {editandoNome ? (
+            <form className="form-nome" onSubmit={salvarNome}>
+              <input
+                type="text"
+                value={nomeEditado}
+                onChange={(e) => setNomeEditado(e.target.value)}
+                maxLength={30}
+                autoFocus
+              />
+              <button type="submit" disabled={salvandoNome}>
+                {salvandoNome ? '...' : 'salvar'}
+              </button>
+              <button
+                type="button"
+                className="botao-cancelar-nome"
+                onClick={() => setEditandoNome(false)}
+              >
+                cancelar
+              </button>
+              {erroNome && <p className="erro-nome">{erroNome}</p>}
+            </form>
+          ) : (
+            <button
+              type="button"
+              className="botao-heroi-nome"
+              onClick={comecarEditarNome}
+            >
+              <span className="heroi-nome">{nome}</span>
+              <span className="lapis-nome">✏️</span>
+            </button>
+          )}
+
           <p className="heroi-nivel">Nível {nivel.nivel}</p>
 
           <div className="barra-nivel">

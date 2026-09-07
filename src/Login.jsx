@@ -22,6 +22,7 @@ function traduzirErro(mensagem) {
 }
 
 function Login() {
+  const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
@@ -53,16 +54,21 @@ function Login() {
     setAviso('')
 
     // esse botao é type="button", entao o required dos campos nao vale nele
-    if (!email || !senha) {
-      setErro('preenche o email e a senha primeiro.')
+    if (!nome || !email || !senha) {
+      setErro('preenche o nome, o email e a senha primeiro.')
       return
     }
 
     setCarregando(true)
 
+    // o nome vai nos metadados do auth - o App.jsx le daqui pra criar a
+    // linha do usuario com o nome certo, em vez do email
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: senha,
+      options: {
+        data: { nome: nome.trim() },
+      },
     })
 
     setCarregando(false)
@@ -81,6 +87,14 @@ function Login() {
 
   return (
     <form className="login-caixa" onSubmit={entrar}>
+      <input
+        type="text"
+        placeholder="seu nome (só pra criar conta)"
+        value={nome}
+        onChange={(e) => setNome(e.target.value)}
+        maxLength={30}
+      />
+
       <input
         type="email"
         placeholder="seu email"

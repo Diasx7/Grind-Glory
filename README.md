@@ -13,7 +13,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 9:** energia — o jogo só anda se você cumprir coisas
 - **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia
 - **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel
-- **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia (esse aqui)
+- **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia
+- **Dia 13:** nome de verdade na saudação, em vez do pedaço do email (esse aqui)
 
 Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
 decide a batalha é só o que você fez na vida real.
@@ -119,8 +120,10 @@ Abre o link que aparece no terminal (geralmente
 
 ## Como testar login e salvar tarefa
 
-1. Com o app aberto, digita um email e uma senha (mínimo 6 caracteres)
-2. Na primeira vez, clica em **criar conta** — você entra direto
+1. Com o app aberto, digita seu **nome**, um email e uma senha (mínimo 6
+   caracteres)
+2. Na primeira vez, clica em **criar conta** — você entra direto, e a
+   saudação na tela Hoje mostra o nome que você digitou (não o email)
 3. Nas próximas, é o mesmo email e senha no botão **entrar**
 4. Já na tela Hoje, escreve um título, escolhe a categoria e clica no **+**
 5. Marca a tarefa na bolinha: ela risca e o ganho aparece embaixo
@@ -149,6 +152,21 @@ Abre o console do navegador (F12 > Console) e vê o que aparece:
 - **Nada no console e nem carrega** — confere se o `.env` está na raiz do
   projeto (mesma pasta do `package.json`) e se as variáveis começam com
   `VITE_` (o Vite ignora as que não começam).
+- **`email rate limit exceeded`** ao criar conta — o Supabase free tier
+  tem um teto baixo de emails por hora (conta de confirmação, mesmo com
+  **Confirm email** desligado ele ainda tenta mandar algo às vezes).
+  Espera um pouco e tenta de novo, ou confere se **Confirm email** em
+  **Authentication > Sign In / Providers > Email** está mesmo desligado
+  (ver seção 5.1) — se estiver ligado, toda conta nova depende de um
+  email que pode nunca chegar por causa desse teto.
+
+### Corrigindo o nome de uma conta antiga
+
+Contas criadas antes do dia 13 ficaram com o **email inteiro** salvo em
+`usuario.nome` (era assim que o `App.jsx` preenchia essa coluna antes).
+Pra corrigir: entra com essa conta, vai na aba **Herói**, toca no nome
+(tem um ✏️ do lado) e digita o nome de verdade. Salva uma vez só, fica
+guardado no banco pra sempre.
 
 ## Como testar o planejamento (aba Semana)
 

@@ -82,6 +82,83 @@
   font-weight: 600;
 }
 
+/* o nome inteiro vira um botao pra poder editar - por isso reseta a
+   cara de botao do navegador aqui */
+.botao-heroi-nome {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.lapis-nome {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.botao-heroi-nome:hover .lapis-nome {
+  opacity: 1;
+}
+
+/* ---------- editar o nome ---------- */
+.form-nome {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.form-nome input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(192, 132, 252, 0.5);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #f1eaff;
+  font-size: 15px;
+  font-family: inherit;
+  text-align: center;
+}
+
+.form-nome input:focus {
+  outline: none;
+}
+
+.form-nome button {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.form-nome button[type='submit'] {
+  background: #aa3bff;
+  color: #fff;
+}
+
+.form-nome button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.botao-cancelar-nome {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #b9aed1;
+}
+
+.erro-nome {
+  width: 100%;
+  font-size: 12px;
+  color: #ff8095;
+}
+
 .heroi-nivel {
   font-size: 13px;
   color: #c084fc;

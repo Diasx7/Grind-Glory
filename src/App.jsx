@@ -85,9 +85,15 @@ function App() {
     }
 
     if (!data) {
+      // o nome digitado no cadastro vem nos metadados do auth (ver Login.jsx).
+      // se nao tiver por algum motivo, cai no pedaço do email so pra nao
+      // ficar em branco
+      const nomeDoCadastro =
+        sessao.user.user_metadata?.nome || sessao.user.email.split('@')[0]
+
       const { error } = await supabase.from('usuario').insert({
         id: sessao.user.id,
-        nome: sessao.user.email,
+        nome: nomeDoCadastro,
         energia_data: dataDeHoje(),
       })
 
