@@ -11,3 +11,5 @@
 alter table usuario add column energia int not null default 0;
 alter table usuario add column energia_ganha int not null default 0;
 alter table usuario add column energia_data date;
+alter table usuario add column if not exists energia int not null default 0;
+alter table usuario add column if not exists energia_data date;
