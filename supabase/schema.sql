@@ -1,12 +1,6 @@
--- roda isso no SQL Editor do Supabase (dia 2)
--- ATENCAO: depois desse arquivo, roda tambem o migracao_dia4.sql (modelo novo
--- de conclusao + data_ref), o migracao_dia7.sql (arquivar rotina) e o
--- migracao_dia8.sql (fase da batalha) e o migracao_dia9.sql (energia).
--- so esse aqui nao deixa o banco atualizado.
+-- schema base (dia 2) - versao que pode rodar de novo sem quebrar
 
--- tabela do usuario (perfil do jogador)
--- o id é o mesmo id que o supabase auth cria quando a pessoa loga
-create table usuario (
+create table if not exists usuario (
   id uuid primary key references auth.users (id) on delete cascade,
   nome text,
   moedas int not null default 0,
@@ -17,8 +11,7 @@ create table usuario (
   agilidade int not null default 0
 );
 
--- tabela de tarefa
-create table tarefa (
+create table if not exists tarefa (
   id bigint generated always as identity primary key,
   usuario_id uuid not null references usuario (id) on delete cascade,
   titulo text not null,
@@ -29,11 +22,18 @@ create table tarefa (
   criada_em timestamptz not null default now()
 );
 
--- liga a seguranca por linha, assim cada um só mexe no que é dele
 alter table usuario enable row level security;
 alter table tarefa enable row level security;
 
--- usuario só ve e edita o proprio perfil
+-- apaga as politicas antes de criar, pra poder rodar de novo
+drop policy if exists "usuario ve o proprio perfil" on usuario;
+drop policy if exists "usuario cria o proprio perfil" on usuario;
+drop policy if exists "usuario atualiza o proprio perfil" on usuario;
+drop policy if exists "usuario ve as proprias tarefas" on tarefa;
+drop policy if exists "usuario cria tarefa pra ele mesmo" on tarefa;
+drop policy if exists "usuario atualiza a propria tarefa" on tarefa;
+drop policy if exists "usuario apaga a propria tarefa" on tarefa;
+
 create policy "usuario ve o proprio perfil"
   on usuario for select
   using (auth.uid() = id);
@@ -46,7 +46,6 @@ create policy "usuario atualiza o proprio perfil"
   on usuario for update
   using (auth.uid() = id);
 
--- usuario só ve e mexe nas proprias tarefas
 create policy "usuario ve as proprias tarefas"
   on tarefa for select
   using (auth.uid() = usuario_id);
