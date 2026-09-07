@@ -12,10 +12,11 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 8:** batalha automática movida pelos atributos
 - **Dia 9:** energia — o jogo só anda se você cumprir coisas
 - **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia
-- **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel (esse aqui)
+- **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel
+- **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia (esse aqui)
 
-Ainda não tem loja nem equipamento — o que decide a batalha é só o que
-você fez na vida real.
+Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
+decide a batalha é só o que você fez na vida real.
 
 ## Stack
 
@@ -149,6 +150,54 @@ Abre o console do navegador (F12 > Console) e vê o que aparece:
   projeto (mesma pasta do `package.json`) e se as variáveis começam com
   `VITE_` (o Vite ignora as que não começam).
 
+## Como testar o planejamento (aba Semana)
+
+1. Na tela Hoje, cria uma tarefa deixando o seletor de dia em **Hoje**
+   (o padrão) — ela aparece na lista e conta em "hoje" normalmente
+2. Cria outra tarefa clicando em **Amanhã** antes do **+** — repare que
+   ela **não aparece** na lista nem entra na contagem "X de Y" de hoje
+3. Abre o painel **📅 planejar amanhã** (logo abaixo do formulário): a
+   tarefa que você acabou de criar pra amanhã aparece ali na prévia
+4. Clica em **+ adicionar pra amanhã** dentro desse painel: o seletor de
+   dia pula sozinho pra "Amanhã" e o cursor volta pro campo de título —
+   é o atalho pra planejar sem sair da tela Hoje
+5. Vai na aba **Semana**: os 7 dias aparecem, cada um com suas tarefas.
+   A tarefa que você criou pra amanhã deve aparecer no card "Amanhã"
+6. Nessa aba, clica no **+** de qualquer card de um dia futuro (ex:
+   "Quinta") pra abrir o formulário daquele dia especificamente e criar
+   uma tarefa direto ali
+7. Uma rotina (criada com **🔁 repete todo dia** ligado) aparece em
+   **todos** os 7 cards da Semana, não só num dia
+
+### Confirmando que tarefa futura não pode ser feita antes da hora
+
+Tenta marcar uma tarefa de amanhã como feita: não tem como, porque ela
+simplesmente não existe na tela Hoje até o dia chegar (nem o card
+"Amanhã" da Semana tem bolinha de marcar — só a tela Hoje marca).
+
+### Simulando a chegada do dia seguinte
+
+A forma mais direta, já que o "hoje" do app vem do relógio do
+computador/celular (`dataDeHoje()` em `jogo.js`):
+
+1. Cria uma tarefa pra amanhã (pelo seletor de dia ou pelo painel)
+2. Muda a data do sistema operacional pra amanhã (no Windows: clica no
+   relógio na barra de tarefas > **Ajustar data e hora**)
+3. Recarrega a página (ou só espera — o app detecta a virada de dia
+   sozinho, ver "Sem tratamento de virada de dia" resolvido no dia 10)
+4. A tarefa que estava em "amanhã" agora aparece na tela Hoje, contando
+   normalmente e podendo ser marcada
+5. **Não esquece de voltar a data do sistema pro normal depois** — muda
+   de novo pela mesma tela, ou liga o "definir hora automaticamente"
+
+### Confirmando que tarefa de ontem não vira pendência
+
+No Supabase, **Table Editor > tarefa**, edita manualmente o `data_ref`
+de uma tarefa (não recorrente) pra ontem e recarrega a tela Hoje: ela
+simplesmente some da lista, sem nenhum aviso de atraso. Isso não é um
+recurso escondido — é só a mesma busca (`data_ref = hoje`) que já existia
+antes de hoje, aplicada com uma data diferente.
+
 ## Instalar no celular (PWA)
 
 O app é um PWA: dá pra instalar na tela inicial do celular e ele abre
@@ -215,7 +264,7 @@ jogador só, o único que pode trapacear sou eu — fica pra quando tiver
 mais gente usando.
 
 ### O preset de dificuldade vive em dois lugares
-A lista `categorias` do `TelaHoje.jsx` e o `case` do trigger
+A lista `categorias` do `jogo.js` e o `case` do trigger
 `aplicar_dificuldade()` precisam bater. Mexeu em um, mexe no outro.
 Se saírem de sincronia, a tela mostra um ganho e o banco grava a
 dificuldade de outro.
@@ -244,3 +293,14 @@ a mesma coisa e saindo de sincronia.
 Ou a coluna some numa migração, ou passa a ser preenchida — mas ter as
 duas coisas é pedir bug. Deixei derivado porque é o que não quebra nada
 hoje.
+
+### Na aba Semana só dá pra apagar tarefa de dias futuros
+`apagarTarefa()` na tela Hoje devolve a recompensa (moeda/xp/atributo)
+antes de apagar, porque a tarefa pode já estar concluída. Na Semana,
+pra não duplicar essa lógica toda de novo, o botão ✕ só aparece nos
+dias depois de hoje - dias futuros nunca têm conclusão (não dá pra
+marcar tarefa antes da hora), então apagar ali nunca corre o risco de
+sumir com uma recompensa já dada. Rotina foge dessa regra e pode ser
+arquivada de qualquer dia, porque arquivar nunca mexe em conclusão.
+Se um dia a tarefa de hoje precisar ser editável pela Semana também,
+é só levar essa mesma lógica de devolução pra lá.

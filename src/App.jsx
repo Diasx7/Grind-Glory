@@ -3,6 +3,7 @@ import { supabase, supabaseConfigurado } from './supabaseClient'
 import { dataDeHoje } from './jogo'
 import Login from './Login'
 import TelaHoje from './TelaHoje'
+import TelaSemana from './TelaSemana'
 import TelaHeroi from './TelaHeroi'
 import TelaBatalha from './TelaBatalha'
 import './App.css'
@@ -145,6 +146,7 @@ function App() {
     return (
       <>
         {aba === 'hoje' && <TelaHoje usuario={sessao.user} diaAtual={diaAtual} />}
+        {aba === 'semana' && <TelaSemana usuario={sessao.user} diaAtual={diaAtual} />}
         {aba === 'heroi' && <TelaHeroi usuario={sessao.user} />}
         {aba === 'batalha' && <TelaBatalha usuario={sessao.user} />}
 
@@ -158,6 +160,13 @@ function App() {
           >
             <span className="aba-emoji">📋</span>
             Hoje
+          </button>
+          <button
+            className={aba === 'semana' ? 'aba aba-ativa' : 'aba'}
+            onClick={() => setAba('semana')}
+          >
+            <span className="aba-emoji">🗓️</span>
+            Semana
           </button>
           <button
             className={aba === 'heroi' ? 'aba aba-ativa' : 'aba'}

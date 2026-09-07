@@ -146,6 +146,99 @@
   filter: brightness(1.1);
 }
 
+/* ---------- pra quando dia é a tarefa ---------- */
+.seletor-dia {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* mesma cara do chip de categoria, mas acende em roxo (nao tem atributo,
+   entao nao faz sentido usar as cores azul/verde/ambar aqui) */
+.chip-dia-ativo {
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
+  color: #f1eaff;
+  font-weight: 500;
+}
+
+.input-data {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b9aed1;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 10px;
+  border-radius: 999px;
+  /* faz o iconezinho de calendario nativo aparecer certo no fundo escuro */
+  color-scheme: dark;
+}
+
+/* ---------- painel de planejar amanha ---------- */
+.painel-amanha {
+  margin-bottom: 26px;
+}
+
+.amanha-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #f1eaff;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.amanha-contagem {
+  font-size: 12px;
+  color: #c084fc;
+}
+
+.amanha-conteudo {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+}
+
+.amanha-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #b9aed1;
+  margin-bottom: 12px;
+}
+
+.amanha-vazio {
+  font-size: 13px;
+  color: #6e6482;
+  margin-bottom: 12px;
+}
+
+.botao-focar-amanha {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(192, 132, 252, 0.4);
+  color: #c084fc;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botao-focar-amanha:hover {
+  border-style: solid;
+}
+
 /* ---------- escolha da categoria ---------- */
 .chips {
   display: flex;

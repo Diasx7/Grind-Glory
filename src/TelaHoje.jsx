@@ -1,18 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
-import { atributos, dataDeHoje, tetoDeEnergia } from './jogo'
+import { atributos, categorias, dataDeHoje, somarDias, tetoDeEnergia } from './jogo'
 import './TelaHoje.css'
-
-// as categorias do jogo. a dificuldade de cada uma tambem vive no trigger
-// aplicar_dificuldade() la no banco - mexeu aqui, mexe la tambem.
-const categorias = [
-  { id: 'estudo', nome: 'Estudo', emoji: '📘', atributo: 'inteligencia' },
-  { id: 'leitura', nome: 'Leitura', emoji: '📖', atributo: 'inteligencia' },
-  { id: 'exercicio', nome: 'Exercício', emoji: '💪', atributo: 'forca' },
-  { id: 'saude', nome: 'Saúde', emoji: '🌿', atributo: 'forca' },
-  { id: 'trabalho', nome: 'Trabalho', emoji: '💼', atributo: 'agilidade' },
-  { id: 'organizacao', nome: 'Organização', emoji: '🧹', atributo: 'agilidade' },
-]
 
 // o que cada dificuldade rende. a curva é quase reta de proposito: tarefa
 // pequena TEM que valer a pena, é a ideia do app inteiro.
@@ -33,13 +22,19 @@ function TelaHoje({ usuario, diaAtual }) {
   const [titulo, setTitulo] = useState('')
   const [categoria, setCategoria] = useState('estudo')
   const [repete, setRepete] = useState(false)
+  const [dataEscolhida, setDataEscolhida] = useState(dataDeHoje())
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
   const [erroForm, setErroForm] = useState('')
   const [ganhoNaTela, setGanhoNaTela] = useState(null)
   const [emAndamento, setEmAndamento] = useState({})
 
+  // tarefas ja planejadas pra amanha, so pra mostrar no painel de baixo
+  const [tarefasDeAmanha, setTarefasDeAmanha] = useState([])
+  const [mostrarAmanha, setMostrarAmanha] = useState(false)
+
   const tempoDoGanho = useRef(null)
+  const inputTituloRef = useRef(null)
 
   // espelho do perfil, mas atualizado na hora (nao espera o re-render).
   // sem isso, marcar duas tarefas bem rapido fazia a segunda leitura pegar
@@ -53,9 +48,35 @@ function TelaHoje({ usuario, diaAtual }) {
 
   useEffect(() => {
     buscarTudo()
+    buscarTarefasDeAmanha()
     // busca de novo quando o dia vira (o App avisa via diaAtual), senao a
     // lista continuava mostrando as tarefas de ontem com o app aberto
+
+    // o seletor de dia tambem precisa voltar pro "hoje" novo - senao, se a
+    // pessoa tivesse deixado ele em "amanha" (que virou hoje) antes da
+    // virada, uma tarefa criada depois ia cair silenciosamente em ontem
+    setDataEscolhida(dataDeHoje())
   }, [diaAtual])
+
+  async function buscarTarefasDeAmanha() {
+    const amanha = somarDias(dataDeHoje(), 1)
+
+    const { data, error } = await supabase
+      .from('tarefa')
+      .select('id, titulo, categoria')
+      .eq('usuario_id', usuario.id)
+      .eq('arquivada', false)
+      .eq('recorrente', false)
+      .eq('data_ref', amanha)
+      .order('criada_em', { ascending: true })
+
+    if (error) {
+      console.log('erro ao buscar tarefas de amanha', error)
+      return
+    }
+
+    setTarefasDeAmanha(data)
+  }
 
   async function buscarTudo() {
     setErro(false)
@@ -204,6 +225,12 @@ function TelaHoje({ usuario, diaAtual }) {
     const textoLimpo = titulo.trim()
     if (!textoLimpo) return
 
+    const hoje = dataDeHoje()
+    // rotina sempre começa hoje (o seletor de dia fica escondido quando
+    // repete ta ligado); se o campo de data ficar vazio por algum motivo,
+    // cai em hoje tambem, nunca fica sem data_ref nenhuma
+    const diaDaTarefa = repete ? hoje : dataEscolhida || hoje
+
     // nao mando dificuldade: o trigger do banco calcula ela pela categoria
     const { data, error } = await supabase
       .from('tarefa')
@@ -212,7 +239,7 @@ function TelaHoje({ usuario, diaAtual }) {
         titulo: textoLimpo,
         categoria: categoria,
         // numa rotina o data_ref vira "desde quando ela existe"
-        data_ref: dataDeHoje(),
+        data_ref: diaDaTarefa,
         recorrente: repete,
       })
       .select()
@@ -228,7 +255,22 @@ function TelaHoje({ usuario, diaAtual }) {
     // desligo o repete de novo de proposito: rotina criada sem querer
     // volta todo dia e so sai arquivando, entao prefiro pedir de novo
     setRepete(false)
-    setTarefas([...tarefas, data])
+
+    // so entra na lista de hoje se for pra hoje - uma tarefa criada pra
+    // amanha nao pode aparecer nem contar na tela agora
+    if (data.recorrente || data.data_ref === hoje) {
+      setTarefas([...tarefas, data])
+    }
+
+    if (data.data_ref === somarDias(hoje, 1)) {
+      setTarefasDeAmanha((atual) => [...atual, data])
+    }
+  }
+
+  // atalho: pula direto pro formulario ja com "amanha" selecionado
+  function focarEmAmanha() {
+    setDataEscolhida(somarDias(dataDeHoje(), 1))
+    inputTituloRef.current?.focus()
   }
 
   function marcarTarefa(tarefa) {
@@ -449,8 +491,9 @@ function TelaHoje({ usuario, diaAtual }) {
         <form className="form-nova" onSubmit={criarTarefa}>
           <div className="linha-campo">
             <input
+              ref={inputTituloRef}
               type="text"
-              placeholder="o que você vai fazer hoje?"
+              placeholder="o que você vai fazer?"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               maxLength={80}
@@ -459,6 +502,40 @@ function TelaHoje({ usuario, diaAtual }) {
               +
             </button>
           </div>
+
+          {/* escondido quando é rotina: rotina aparece todo dia, entao
+              escolher um dia especifico pra ela nao faz sentido aqui */}
+          {!repete && (
+            <div className="seletor-dia">
+              <button
+                type="button"
+                className={
+                  dataEscolhida === dataDeHoje() ? 'chip chip-dia-ativo' : 'chip'
+                }
+                onClick={() => setDataEscolhida(dataDeHoje())}
+              >
+                Hoje
+              </button>
+              <button
+                type="button"
+                className={
+                  dataEscolhida === somarDias(dataDeHoje(), 1)
+                    ? 'chip chip-dia-ativo'
+                    : 'chip'
+                }
+                onClick={() => setDataEscolhida(somarDias(dataDeHoje(), 1))}
+              >
+                Amanhã
+              </button>
+              <input
+                type="date"
+                className="input-data"
+                value={dataEscolhida}
+                min={dataDeHoje()}
+                onChange={(e) => setDataEscolhida(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="chips">
             {categorias.map((c) => (
@@ -480,13 +557,65 @@ function TelaHoje({ usuario, diaAtual }) {
           <button
             type="button"
             className={repete ? 'chip-repete chip-repete-ativo' : 'chip-repete'}
-            onClick={() => setRepete(!repete)}
+            onClick={() => {
+              const novoRepete = !repete
+              setRepete(novoRepete)
+              // rotina sempre começa hoje - se a pessoa tinha escolhido
+              // outro dia antes, o seletor volta escondido e resetado
+              if (novoRepete) setDataEscolhida(dataDeHoje())
+            }}
           >
             🔁 repete todo dia
           </button>
 
           {erroForm && <p className="erro-form">{erroForm}</p>}
         </form>
+
+        {/* painel colapsavel pra ver/adicionar o que ja ta planejado pra
+            amanha, sem precisar sair da tela Hoje */}
+        <section className="painel-amanha">
+          <button
+            type="button"
+            className="amanha-toggle"
+            onClick={() => setMostrarAmanha(!mostrarAmanha)}
+          >
+            <span>📅 planejar amanhã</span>
+            <span className="amanha-contagem">
+              {tarefasDeAmanha.length > 0
+                ? tarefasDeAmanha.length + (tarefasDeAmanha.length === 1 ? ' tarefa' : ' tarefas')
+                : 'nada ainda'}
+            </span>
+          </button>
+
+          {mostrarAmanha && (
+            <div className="amanha-conteudo">
+              {tarefasDeAmanha.length === 0 && (
+                <p className="amanha-vazio">nada planejado pra amanhã ainda.</p>
+              )}
+
+              {tarefasDeAmanha.length > 0 && (
+                <ul className="amanha-lista">
+                  {tarefasDeAmanha.map((t) => {
+                    const cat = categorias.find((c) => c.id === t.categoria)
+                    return (
+                      <li key={t.id}>
+                        {cat ? cat.emoji : ''} {t.titulo}
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+
+              <button
+                type="button"
+                className="botao-focar-amanha"
+                onClick={focarEmAmanha}
+              >
+                + adicionar pra amanhã
+              </button>
+            </div>
+          )}
+        </section>
 
         {carregando && <p className="aviso">carregando suas tarefas...</p>}
 
