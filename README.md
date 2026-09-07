@@ -11,7 +11,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 7:** rotinas que voltam todo dia
 - **Dia 8:** batalha automática movida pelos atributos
 - **Dia 9:** energia — o jogo só anda se você cumprir coisas
-- **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia (esse aqui)
+- **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia
+- **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel (esse aqui)
 
 Ainda não tem loja nem equipamento — o que decide a batalha é só o que
 você fez na vida real.
@@ -148,13 +149,52 @@ Abre o console do navegador (F12 > Console) e vê o que aparece:
   projeto (mesma pasta do `package.json`) e se as variáveis começam com
   `VITE_` (o Vite ignora as que não começam).
 
-## Deploy
+## Instalar no celular (PWA)
 
-Projeto pronto pra subir na [Vercel](https://vercel.com), sem configuração
-extra de build (ela já reconhece projeto Vite sozinha). Só não esquece
-de adicionar as mesmas variáveis do `.env` (`VITE_SUPABASE_URL` e
-`VITE_SUPABASE_ANON_KEY`) em **Project Settings > Environment
-Variables** lá na Vercel, senão o app não acha as chaves no ar.
+O app é um PWA: dá pra instalar na tela inicial do celular e ele abre
+em tela cheia, sem barra de navegador.
+
+- **Android (Chrome):** abre o site, toca no menu (⋮) e em **Instalar
+  app** (ou **Adicionar à tela inicial**)
+- **iPhone (Safari):** abre o site, toca no botão de compartilhar
+  (o quadrado com a seta pra cima) e em **Adicionar à Tela de Início**
+
+Isso só funciona no site publicado (https), não no `npm run dev` local.
+
+## Deploy na Vercel
+
+1. Cria uma conta em [vercel.com](https://vercel.com) (dá pra entrar
+   direto com o GitHub)
+2. Clica em **Add New > Project**
+3. Escolhe o repositório `Grind-Glory` do GitHub e clica em **Import**
+4. A Vercel já reconhece que é um projeto Vite sozinha (build
+   `vite build`, saída em `dist`) — não precisa mudar nada nessa tela
+5. Antes de clicar em Deploy, abre **Environment Variables** e adiciona
+   as duas do `.env`:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+6. Clica em **Deploy** e espera. Em ~1 minuto ela te dá um link tipo
+   `grind-glory.vercel.app`
+
+Pra atualizar depois: é só dar `git push` — a Vercel redeploya sozinha
+a cada push na branch principal.
+
+### Depois de publicar, ajusta isso no painel do Supabase
+
+Hoje o login é por **email + senha** com confirmação de email
+desligada (ver seção 5.1 acima), então nenhum link de email volta pro
+app — por isso o Site URL não bloqueia o login em produção como
+bloquearia com link mágico.
+
+Mesmo assim vale configurar, porque o Supabase usa o Site URL em outras
+telas de auth (recuperação de senha, por exemplo, ou se um dia vocês
+ligar magic link/OAuth de novo):
+
+1. No Supabase, vai em **Authentication > URL Configuration**
+2. Troca o **Site URL** de `http://localhost:5173` pro domínio da
+   Vercel (ex: `https://grind-glory.vercel.app`)
+3. Em **Redirect URLs**, adiciona esse mesmo domínio (pode deixar o
+   `localhost:5173` também na lista, pra continuar testando local)
 
 ## Dívida técnica (pra resolver depois)
 
