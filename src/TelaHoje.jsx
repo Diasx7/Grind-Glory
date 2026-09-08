@@ -33,6 +33,13 @@ function TelaHoje({ usuario, diaAtual }) {
   const [tarefasDeAmanha, setTarefasDeAmanha] = useState([])
   const [mostrarAmanha, setMostrarAmanha] = useState(false)
 
+  // "repetir plano de ontem" - copia tarefas de um dia anterior pra amanha
+  const [diaParaCopiar, setDiaParaCopiar] = useState(somarDias(dataDeHoje(), -1))
+  const [tarefasParaCopiar, setTarefasParaCopiar] = useState([])
+  const [selecionadasParaCopiar, setSelecionadasParaCopiar] = useState({})
+  const [carregandoCopia, setCarregandoCopia] = useState(false)
+  const [copiando, setCopiando] = useState(false)
+
   const tempoDoGanho = useRef(null)
   const inputTituloRef = useRef(null)
 
@@ -56,6 +63,8 @@ function TelaHoje({ usuario, diaAtual }) {
     // pessoa tivesse deixado ele em "amanha" (que virou hoje) antes da
     // virada, uma tarefa criada depois ia cair silenciosamente em ontem
     setDataEscolhida(dataDeHoje())
+    // mesma ideia pro "copiar de ontem": ontem tambem anda um dia
+    setDiaParaCopiar(somarDias(dataDeHoje(), -1))
   }, [diaAtual])
 
   async function buscarTarefasDeAmanha() {
@@ -76,6 +85,77 @@ function TelaHoje({ usuario, diaAtual }) {
     }
 
     setTarefasDeAmanha(data)
+  }
+
+  // busca as tarefas de um dia especifico pra mostrar no "repetir plano" -
+  // so quando o painel de amanha ta aberto, nao precisa toda hora
+  useEffect(() => {
+    if (mostrarAmanha) {
+      buscarTarefasParaCopiar(diaParaCopiar)
+    }
+  }, [mostrarAmanha, diaParaCopiar])
+
+  async function buscarTarefasParaCopiar(dia) {
+    setCarregandoCopia(true)
+
+    const { data, error } = await supabase
+      .from('tarefa')
+      .select('id, titulo, categoria')
+      .eq('usuario_id', usuario.id)
+      .eq('arquivada', false)
+      .eq('recorrente', false)
+      .eq('data_ref', dia)
+      .order('criada_em', { ascending: true })
+
+    if (error) {
+      console.log('erro ao buscar tarefas pra copiar', error)
+      setCarregandoCopia(false)
+      return
+    }
+
+    setTarefasParaCopiar(data)
+    // todas ja vem marcadas - o caminho de um toque so é nao mexer em nada
+    // e apertar "copiar"
+    const marcadas = {}
+    data.forEach((t) => {
+      marcadas[t.id] = true
+    })
+    setSelecionadasParaCopiar(marcadas)
+    setCarregandoCopia(false)
+  }
+
+  function alternarSelecaoCopia(id) {
+    setSelecionadasParaCopiar((atual) => ({ ...atual, [id]: !atual[id] }))
+  }
+
+  async function copiarParaAmanha() {
+    const selecionadas = tarefasParaCopiar.filter((t) => selecionadasParaCopiar[t.id])
+    if (selecionadas.length === 0) return
+
+    setCopiando(true)
+
+    const amanha = somarDias(dataDeHoje(), 1)
+    const novas = selecionadas.map((t) => ({
+      usuario_id: usuario.id,
+      titulo: t.titulo,
+      categoria: t.categoria,
+      data_ref: amanha,
+      recorrente: false,
+    }))
+
+    const { data, error } = await supabase.from('tarefa').insert(novas).select()
+
+    setCopiando(false)
+
+    if (error) {
+      console.log('erro ao copiar tarefas', error)
+      return
+    }
+
+    setTarefasDeAmanha((atual) => [...atual, ...data])
+    // some com a lista de "pra copiar": ja copiou o que tinha, nao faz
+    // sentido oferecer copiar de novo o mesmo dia
+    setTarefasParaCopiar([])
   }
 
   async function buscarTudo() {
@@ -607,6 +687,58 @@ function TelaHoje({ usuario, diaAtual }) {
                   })}
                 </ul>
               )}
+
+              {/* repetir plano de um dia anterior - o caminho de UM toque
+                  é so abrir aqui e apertar "copiar", ja vem tudo marcado */}
+              <div className="copiar-dia">
+                <div className="copiar-topo">
+                  <span>🔁 repetir tarefas de</span>
+                  <input
+                    type="date"
+                    className="input-data"
+                    value={diaParaCopiar}
+                    max={somarDias(dataDeHoje(), -1)}
+                    onChange={(e) => setDiaParaCopiar(e.target.value)}
+                  />
+                </div>
+
+                {carregandoCopia && <p className="amanha-vazio">carregando...</p>}
+
+                {!carregandoCopia && tarefasParaCopiar.length === 0 && (
+                  <p className="amanha-vazio">nada pra repetir desse dia.</p>
+                )}
+
+                {!carregandoCopia && tarefasParaCopiar.length > 0 && (
+                  <>
+                    <ul className="copiar-lista">
+                      {tarefasParaCopiar.map((t) => {
+                        const cat = categorias.find((c) => c.id === t.categoria)
+                        return (
+                          <li key={t.id}>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={!!selecionadasParaCopiar[t.id]}
+                                onChange={() => alternarSelecaoCopia(t.id)}
+                              />
+                              {cat ? cat.emoji : ''} {t.titulo}
+                            </label>
+                          </li>
+                        )
+                      })}
+                    </ul>
+
+                    <button
+                      type="button"
+                      className="botao-copiar-amanha"
+                      onClick={copiarParaAmanha}
+                      disabled={copiando}
+                    >
+                      {copiando ? 'copiando...' : '🔁 copiar pra amanhã'}
+                    </button>
+                  </>
+                )}
+              </div>
 
               <button
                 type="button"

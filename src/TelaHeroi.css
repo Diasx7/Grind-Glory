@@ -303,3 +303,57 @@
 .heroi-bolsos {
   flex-wrap: wrap;
 }
+
+/* ---------- lembrete de planejar a noite ---------- */
+.bloco-lembrete {
+  margin-top: 30px;
+}
+
+.lembrete-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: #b9aed1;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+}
+
+.lembrete-linha select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1eaff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+/* interruptor tipo pilula, acende roxo quando ligado */
+.interruptor {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #b9aed1;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.interruptor-ligado {
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
+  color: #f1eaff;
+}
+
+.lembrete-nota {
+  font-size: 12px;
+  color: #6e6482;
+  line-height: 1.5;
+  margin-top: 10px;
+}

@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { atributos, carinhaDoHeroi, tetoDeEnergia } from './jogo'
+import { atributos, carinhaDoHeroi, convites, diasDesde, tetoDeEnergia } from './jogo'
 import './TelaHeroi.css'
-
-// um convite curto por atributo, pra quando ele ta parado ha dias.
-// tem que soar como convite, nunca como cobrança.
-const convites = {
-  inteligencia: 'que tal 10 minutos de leitura?',
-  forca: 'uma caminhada curta já conta',
-  agilidade: 'arrumar uma gaveta já conta',
-}
 
 // o nivel sai do xp na hora de mostrar, entao nunca sai de sincronia.
 // cada nivel custa 50 de xp a mais que o anterior.
@@ -27,19 +19,6 @@ function calcularNivel(xp) {
   return { nivel: nivel, dentro: sobra, custo: custo }
 }
 
-// quantos dias se passaram desde uma data 'AAAA-MM-DD'.
-// monto a data pelas partes pra nao cair no fuso UTC, mesmo motivo do dataDeHoje
-function diasDesde(dataTexto) {
-  const partes = dataTexto.split('-')
-  const antiga = new Date(partes[0], partes[1] - 1, partes[2])
-
-  const hoje = new Date()
-  hoje.setHours(0, 0, 0, 0)
-
-  const umDia = 1000 * 60 * 60 * 24
-  return Math.round((hoje - antiga) / umDia)
-}
-
 function TelaHeroi({ usuario }) {
   const [perfil, setPerfil] = useState(null)
   const [ultimaVez, setUltimaVez] = useState({})
@@ -52,6 +31,17 @@ function TelaHeroi({ usuario }) {
   const [nomeEditado, setNomeEditado] = useState('')
   const [salvandoNome, setSalvandoNome] = useState(false)
   const [erroNome, setErroNome] = useState('')
+
+  // lembrete de planejar a noite - fica salvo no navegador (localStorage),
+  // nao no banco, porque permissao de notificacao é por navegador/aparelho
+  // mesmo, nao por conta. quem checa e dispara é o App.jsx.
+  const [lembreteAtivo, setLembreteAtivo] = useState(
+    () => localStorage.getItem('lembreteAtivo') === 'true',
+  )
+  const [lembreteHora, setLembreteHora] = useState(
+    () => Number(localStorage.getItem('lembreteHora') ?? 21),
+  )
+  const [avisoLembrete, setAvisoLembrete] = useState('')
 
   useEffect(() => {
     buscarHeroi()
@@ -163,6 +153,40 @@ function TelaHeroi({ usuario }) {
 
     setPerfil({ ...perfil, nome: nomeLimpo })
     setEditandoNome(false)
+  }
+
+  // desligar nunca pede nada. ligar pede a permissao do navegador na hora -
+  // só quando a pessoa pede, nunca sozinho quando a tela abre.
+  async function alternarLembrete() {
+    setAvisoLembrete('')
+
+    if (lembreteAtivo) {
+      localStorage.setItem('lembreteAtivo', 'false')
+      setLembreteAtivo(false)
+      return
+    }
+
+    if (!('Notification' in window)) {
+      setAvisoLembrete('seu navegador não suporta notificação.')
+      return
+    }
+
+    const permissao = await Notification.requestPermission()
+
+    if (permissao !== 'granted') {
+      setAvisoLembrete(
+        'sem permissão, não consigo avisar. dá pra ativar depois nas configurações de notificação do navegador.',
+      )
+      return
+    }
+
+    localStorage.setItem('lembreteAtivo', 'true')
+    setLembreteAtivo(true)
+  }
+
+  function mudarHoraLembrete(novaHora) {
+    localStorage.setItem('lembreteHora', String(novaHora))
+    setLembreteHora(novaHora)
   }
 
   // a frase que nomeia o desequilibrio. constata, nao cobra.
@@ -324,6 +348,46 @@ function TelaHeroi({ usuario }) {
             )
           })}
         </div>
+
+        <section className="bloco-lembrete">
+          <h2 className="titulo-espelho">lembretes</h2>
+
+          <div className="lembrete-linha">
+            <span>🔔 avisar de noite pra planejar amanhã</span>
+            <button
+              type="button"
+              className={lembreteAtivo ? 'interruptor interruptor-ligado' : 'interruptor'}
+              onClick={alternarLembrete}
+              aria-pressed={lembreteAtivo}
+            >
+              {lembreteAtivo ? 'ligado' : 'desligado'}
+            </button>
+          </div>
+
+          {lembreteAtivo && (
+            <div className="lembrete-linha">
+              <span>horário</span>
+              <select
+                value={lembreteHora}
+                onChange={(e) => mudarHoraLembrete(Number(e.target.value))}
+              >
+                {Array.from({ length: 24 }, (_, h) => (
+                  <option key={h} value={h}>
+                    {String(h).padStart(2, '0')}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {avisoLembrete && <p className="erro-nome">{avisoLembrete}</p>}
+
+          <p className="lembrete-nota">
+            é só um convite pra planejar - nunca uma cobrança do que ficou sem
+            fazer. só funciona com o app aberto em alguma aba (mesmo em
+            segundo plano); com o navegador todo fechado, o aviso não chega.
+          </p>
+        </section>
       </div>
     </div>
   )

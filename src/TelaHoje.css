@@ -239,6 +239,59 @@
   border-style: solid;
 }
 
+/* ---------- repetir plano de um dia anterior ---------- */
+.copiar-dia {
+  margin: 14px 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.copiar-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.copiar-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #b9aed1;
+  margin-bottom: 10px;
+}
+
+.copiar-lista label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.botao-copiar-amanha {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px;
+  cursor: pointer;
+}
+
+.botao-copiar-amanha:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* ---------- escolha da categoria ---------- */
 .chips {
   display: flex;

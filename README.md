@@ -14,7 +14,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 10:** polimento — bugs, estados vazios/erro, virada de dia
 - **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel
 - **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia
-- **Dia 13:** nome de verdade na saudação, em vez do pedaço do email (esse aqui)
+- **Dia 13:** nome de verdade na saudação, em vez do pedaço do email
+- **Dia 14:** reduzir o atrito de planejar — repetir plano de ontem e lembrete à noite (esse aqui)
 
 Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
 decide a batalha é só o que você fez na vida real.
@@ -216,6 +217,43 @@ simplesmente some da lista, sem nenhum aviso de atraso. Isso não é um
 recurso escondido — é só a mesma busca (`data_ref = hoje`) que já existia
 antes de hoje, aplicada com uma data diferente.
 
+## Como testar "repetir plano de ontem" e o lembrete
+
+### Repetir plano de um dia anterior
+
+1. Marca (ou só cria) algumas tarefas hoje
+2. Na tela Hoje, abre o painel **📅 planejar amanhã**
+3. Dentro dele tem **🔁 repetir tarefas de**, já em "ontem" por padrão,
+   com as tarefas daquele dia listadas e **todas marcadas** — é assim que
+   o caminho de um toque só funciona: sem mudar nada, já aperta **🔁
+   copiar pra amanhã**
+4. As tarefas copiadas aparecem na prévia "planejado pra amanhã" ali em
+   cima, e a lista de "repetir" fica vazia (já copiou o que tinha)
+5. Pra copiar de um dia diferente (não só ontem), troca a data ali do
+   lado de "repetir tarefas de" — qualquer dia passado serve
+6. Desmarca uma tarefa da lista antes de copiar pra levar só algumas,
+   não todas
+
+### Lembrete de planejar à noite
+
+1. Vai na aba **Herói**, desce até **lembretes**
+2. Liga o interruptor — o navegador vai pedir permissão de notificação
+   (só pede porque você pediu, não sozinho)
+3. Escolhe o horário (padrão 21h)
+4. **Pra testar sem esperar até a hora**: muda a hora do computador pra
+   depois do horário escolhido (ou escolhe um horário que já passou hoje)
+   e volta pro app — dentro de um minuto (ou ao trocar de aba/voltar pro
+   navegador) a notificação aparece, **contanto que amanhã ainda não
+   tenha nenhuma tarefa planejada** (se já tiver, o app não avisa de
+   novo — não é cobrança)
+5. Desliga o interruptor a qualquer momento: para na hora, sem pedir nada
+
+**Limitação importante:** isso não é push de verdade. Só funciona com o
+app aberto em alguma aba do navegador (mesmo em segundo plano) — com o
+navegador todo fechado, o aviso não chega. Fazer chegar de verdade com
+o app fechado exigiria infraestrutura de servidor (VAPID, tabela de
+inscrição, Edge Function, cron) que esse projeto não tem hoje.
+
 ## Instalar no celular (PWA)
 
 O app é um PWA: dá pra instalar na tela inicial do celular e ele abre
@@ -322,3 +360,17 @@ sumir com uma recompensa já dada. Rotina foge dessa regra e pode ser
 arquivada de qualquer dia, porque arquivar nunca mexe em conclusão.
 Se um dia a tarefa de hoje precisar ser editável pela Semana também,
 é só levar essa mesma lógica de devolução pra lá.
+
+### Lembrete de planejar não é push de verdade
+`verificarLembrete()` no `App.jsx` roda enquanto o app tá aberto (aba
+ativa ou em segundo plano) e mostra a notificação local pelo
+`Notification`/`showNotification`. Isso não acorda o navegador se ele
+estiver fechado - é a diferença entre notificação **local** e **push**
+de verdade (que precisa de servidor mandando na hora certa).
+
+O conserto de verdade seria: par de chaves VAPID, uma tabela pra
+guardar a inscrição push de cada navegador, uma Supabase Edge Function
+que manda o push, e um `pg_cron` conferindo o horário de cada um. Fica
+pra quando isso incomodar de verdade - hoje o app de uma pessoa só
+aberta às vezes já cobre o caso comum (celular com o app instalado,
+aberto em algum momento da noite).

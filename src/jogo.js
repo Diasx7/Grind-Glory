@@ -24,6 +24,14 @@ export const categorias = [
 // ainda assim so ganha 5 tentativas em vez de 20.
 export const tetoDeEnergia = 5
 
+// um convite curto por atributo, pra quando ele ta parado ha dias.
+// tem que soar como convite, nunca como cobrança.
+export const convites = {
+  inteligencia: 'que tal 10 minutos de leitura?',
+  forca: 'uma caminhada curta já conta',
+  agilidade: 'arrumar uma gaveta já conta',
+}
+
 // a cara do heroi segue o atributo mais forte - ele é um espelho, afinal
 export function carinhaDoHeroi(perfil) {
   const total = perfil.inteligencia + perfil.forca + perfil.agilidade
@@ -67,4 +75,43 @@ export function nomeDoDia(dataTexto, hojeTexto) {
   const data = new Date(partes[0], partes[1] - 1, partes[2])
   const nome = data.toLocaleDateString('pt-BR', { weekday: 'long' }).replace('-feira', '')
   return nome.charAt(0).toUpperCase() + nome.slice(1)
+}
+
+// quantos dias se passaram desde uma data 'AAAA-MM-DD'.
+// monta a data pelas partes pra nao cair no fuso UTC, mesmo motivo do dataDeHoje
+export function diasDesde(dataTexto) {
+  const partes = dataTexto.split('-')
+  const antiga = new Date(partes[0], partes[1] - 1, partes[2])
+
+  const hoje = new Date()
+  hoje.setHours(0, 0, 0, 0)
+
+  const umDia = 1000 * 60 * 60 * 24
+  return Math.round((hoje - antiga) / umDia)
+}
+
+// olha o historico de conclusoes e acha o atributo que ta ha mais tempo sem
+// nenhuma - ou que nunca teve nenhuma. so sugere se passou de 2 dias (mesmo
+// criterio do "recado" da tela Heroi), senao devolve null (nada pra sugerir).
+export function atributoMaisEsquecido(historico) {
+  const ultima = {}
+  historico.forEach((c) => {
+    if (c.atributo && !ultima[c.atributo]) {
+      ultima[c.atributo] = c.data
+    }
+  })
+
+  const chaves = Object.keys(atributos)
+  let escolhido = null
+  let maiorDias = 2
+
+  chaves.forEach((chave) => {
+    const dias = ultima[chave] ? diasDesde(ultima[chave]) : Infinity
+    if (dias > maiorDias) {
+      maiorDias = dias
+      escolhido = chave
+    }
+  })
+
+  return escolhido ? { atributo: escolhido, dias: maiorDias } : null
 }

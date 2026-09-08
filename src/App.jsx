@@ -1,6 +1,6 @@
  import { useState, useEffect } from 'react'
 import { supabase, supabaseConfigurado } from './supabaseClient'
-import { dataDeHoje } from './jogo'
+import { dataDeHoje, somarDias } from './jogo'
 import Login from './Login'
 import TelaHoje from './TelaHoje'
 import TelaSemana from './TelaSemana'
@@ -67,6 +67,69 @@ function App() {
     }
     // roda de novo quando o dia vira, pra zerar a energia sem precisar recarregar
   }, [sessao, diaAtual])
+
+  // lembrete de planejar a noite. so funciona com o app aberto em alguma
+  // aba (a config e o "ja avisei hoje" ficam no localStorage, ver TelaHeroi.jsx
+  // pra onde liga/desliga isso). fica aqui no App e nao na TelaHoje porque
+  // precisa continuar rodando mesmo se a pessoa tiver em outra aba.
+  useEffect(() => {
+    if (!sessao) return
+
+    async function verificarLembrete() {
+      if (localStorage.getItem('lembreteAtivo') !== 'true') return
+      if (!('Notification' in window) || Notification.permission !== 'granted') return
+
+      const hora = Number(localStorage.getItem('lembreteHora') ?? 21)
+      if (new Date().getHours() < hora) return
+
+      const hoje = dataDeHoje()
+      if (localStorage.getItem('lembreteUltimoAviso') === hoje) return
+
+      // se amanha ja tem alguma tarefa planejada, nao precisa lembrar - é
+      // convite pra planejar, nao insistencia com quem ja fez
+      const amanha = somarDias(hoje, 1)
+      const { data, error } = await supabase
+        .from('tarefa')
+        .select('id')
+        .eq('usuario_id', sessao.user.id)
+        .eq('arquivada', false)
+        .eq('recorrente', false)
+        .eq('data_ref', amanha)
+
+      if (error) {
+        console.log('erro ao checar tarefas de amanha pro lembrete', error)
+        return
+      }
+
+      // marca como avisado hoje de qualquer forma - se ja tem tarefa, o dia
+      // "ta resolvido" e nao precisa tentar de novo nos proximos minutos
+      localStorage.setItem('lembreteUltimoAviso', hoje)
+
+      if (data.length > 0) return
+
+      const opcoes = {
+        body: 'já pensou no que vai fazer amanhã? dois minutos hoje e o dia já começa andando 🌙',
+        icon: '/icone-192.png',
+        tag: 'planejar-amanha',
+      }
+
+      const registro = await navigator.serviceWorker?.getRegistration()
+      if (registro) {
+        registro.showNotification('Grind & Glory', opcoes)
+      } else {
+        new Notification('Grind & Glory', opcoes)
+      }
+    }
+
+    verificarLembrete()
+    const intervalo = setInterval(verificarLembrete, 60000)
+    document.addEventListener('visibilitychange', verificarLembrete)
+
+    return () => {
+      clearInterval(intervalo)
+      document.removeEventListener('visibilitychange', verificarLembrete)
+    }
+  }, [sessao])
 
   // se é a primeira vez que essa pessoa loga, cria a linha dela na tabela usuario
   async function criarUsuarioSeNaoExiste() {
