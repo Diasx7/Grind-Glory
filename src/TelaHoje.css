@@ -223,6 +223,40 @@
   margin-bottom: 12px;
 }
 
+/* ---------- sugestao do espelho ---------- */
+.sugestao-espelho {
+  margin-bottom: 14px;
+  padding: 12px;
+  background: rgba(192, 132, 252, 0.08);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  border-radius: 12px;
+}
+
+.sugestao-texto {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e9d5ff;
+  margin-bottom: 10px;
+}
+
+.botao-add-sugestao {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px;
+  cursor: pointer;
+}
+
+.botao-add-sugestao:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .botao-focar-amanha {
   width: 100%;
   background: transparent;
@@ -454,6 +488,83 @@
   100% {
     transform: scale(1);
   }
+}
+
+.botao-editar {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 6px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.botao-editar:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.botao-editar:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---------- editar tarefa (formulario inline na lista) ---------- */
+.form-editar-tarefa {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-editar-tarefa input[type='text'] {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(192, 132, 252, 0.5);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #f1eaff;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-editar-tarefa input[type='text']:focus {
+  outline: none;
+}
+
+.editar-nota {
+  font-size: 12px;
+  color: #6e6482;
+}
+
+.botoes-editar {
+  display: flex;
+  gap: 8px;
+}
+
+.botoes-editar button {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.botoes-editar button[type='submit'] {
+  background: #aa3bff;
+  color: #fff;
+}
+
+.botoes-editar button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.botao-cancelar-nome {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #b9aed1;
 }
 
 .botao-apagar {

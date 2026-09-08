@@ -15,7 +15,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 11:** PWA instalável, revisão mobile e deploy na Vercel
 - **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia
 - **Dia 13:** nome de verdade na saudação, em vez do pedaço do email
-- **Dia 14:** reduzir o atrito de planejar — repetir plano de ontem e lembrete à noite (esse aqui)
+- **Dia 14:** reduzir o atrito de planejar — repetir plano de ontem e lembrete à noite
+- **Dia 15:** o espelho sugerindo tarefa, editar tarefa e revisão da edição de nome (esse aqui)
 
 Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
 decide a batalha é só o que você fez na vida real.
@@ -253,6 +254,43 @@ app aberto em alguma aba do navegador (mesmo em segundo plano) — com o
 navegador todo fechado, o aviso não chega. Fazer chegar de verdade com
 o app fechado exigiria infraestrutura de servidor (VAPID, tabela de
 inscrição, Edge Function, cron) que esse projeto não tem hoje.
+
+## Como testar a sugestão do espelho e editar tarefa
+
+### Sugestão a partir do histórico
+
+1. Marca umas tarefas de categorias diferentes por uns dias, deixando
+   pelo menos uma categoria (ex: Saúde) sem marcar nada por mais de 2 dias
+2. Abre o painel **📅 planejar amanhã** na tela Hoje — se tiver algum
+   atributo esquecido, aparece um cartão roxo em cima de tudo: "faz X
+   dias sem nada de [atributo] — [convite]"
+3. Toca em **+ adicionar pra amanhã** dentro do cartão: cria a tarefa
+   pra amanhã direto, com a categoria certa, sem abrir formulário nenhum
+4. O cartão some depois de atendido (não fica insistindo na mesma
+   sugestão) — só volta a aparecer se, na próxima busca, ainda houver
+   algo esquecido
+5. Se o texto sugerido não for bem o que você quer fazer, edita a
+   tarefa depois (é literalmente pra isso que o item de editar serve)
+
+### Editar tarefa
+
+1. Na tela Hoje, toca no ✏️ ao lado de qualquer tarefa (fica entre o
+   texto e o ✕)
+2. Muda o título, a categoria e/ou o dia, e salva
+3. **Numa tarefa já marcada como feita hoje**: o seletor de dia some e
+   vira um aviso "concluída hoje — não dá pra mudar o dia" — o título e
+   a categoria ainda dão pra editar. É de propósito: mudar o dia de uma
+   tarefa que já rendeu recompensa deixaria ela "sem conclusão" no dia
+   novo, como se nunca tivesse sido feita
+4. Muda a categoria de uma tarefa: confere em **Table Editor > tarefa**
+   no Supabase que a `dificuldade` mudou sozinha (é o trigger
+   `aplicar_dificuldade()` fazendo isso, não o app)
+
+## Sobre o nome de usuário (dia 13, revisado)
+
+Isso já existe desde o dia 13 — **Herói**, toca no nome (✏️ do lado),
+edita e salva. Continua funcionando igual; só reforçando aqui porque é
+fácil não notar o ✏️ discreto do lado do nome na primeira olhada.
 
 ## Instalar no celular (PWA)
 

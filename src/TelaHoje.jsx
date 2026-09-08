@@ -1,6 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
-import { atributos, categorias, dataDeHoje, somarDias, tetoDeEnergia } from './jogo'
+import {
+  atributoMaisEsquecido,
+  atributos,
+  categorias,
+  convites,
+  dataDeHoje,
+  somarDias,
+  tetoDeEnergia,
+} from './jogo'
 import './TelaHoje.css'
 
 // o que cada dificuldade rende. a curva é quase reta de proposito: tarefa
@@ -40,6 +48,19 @@ function TelaHoje({ usuario, diaAtual }) {
   const [carregandoCopia, setCarregandoCopia] = useState(false)
   const [copiando, setCopiando] = useState(false)
 
+  // sugestao do espelho: o atributo mais esquecido, com um toque pra
+  // adicionar uma tarefa daquele tipo pra amanha
+  const [sugestao, setSugestao] = useState(null)
+  const [adicionandoSugestao, setAdicionandoSugestao] = useState(false)
+
+  // editar tarefa - so uma por vez
+  const [editandoId, setEditandoId] = useState(null)
+  const [tituloEdit, setTituloEdit] = useState('')
+  const [categoriaEdit, setCategoriaEdit] = useState('')
+  const [dataEdit, setDataEdit] = useState('')
+  const [salvandoEdit, setSalvandoEdit] = useState(false)
+  const [erroEdit, setErroEdit] = useState('')
+
   const tempoDoGanho = useRef(null)
   const inputTituloRef = useRef(null)
 
@@ -56,6 +77,7 @@ function TelaHoje({ usuario, diaAtual }) {
   useEffect(() => {
     buscarTudo()
     buscarTarefasDeAmanha()
+    buscarSugestao()
     // busca de novo quando o dia vira (o App avisa via diaAtual), senao a
     // lista continuava mostrando as tarefas de ontem com o app aberto
 
@@ -66,6 +88,66 @@ function TelaHoje({ usuario, diaAtual }) {
     // mesma ideia pro "copiar de ontem": ontem tambem anda um dia
     setDiaParaCopiar(somarDias(dataDeHoje(), -1))
   }, [diaAtual])
+
+  // olha o historico inteiro de conclusoes e acha o atributo mais esquecido,
+  // pra sugerir uma tarefa daquele tipo no painel de planejar amanha
+  async function buscarSugestao() {
+    const { data, error } = await supabase
+      .from('conclusao')
+      .select('atributo, data')
+      .eq('usuario_id', usuario.id)
+      .order('data', { ascending: false })
+
+    if (error) {
+      console.log('erro ao buscar historico pra sugestao', error)
+      return
+    }
+
+    // sem nenhum historico ainda nao é "esquecido", é so um comeco -
+    // nao faz sentido sugerir nada pra quem nunca completou nada
+    if (data.length === 0) {
+      setSugestao(null)
+      return
+    }
+
+    setSugestao(atributoMaisEsquecido(data))
+  }
+
+  // um toque: cria a tarefa sugerida direto pra amanha, ja com a
+  // categoria certa. o titulo vem do convite - se nao servir, dá pra
+  // editar depois (ver botao-editar na lista)
+  async function adicionarSugestao() {
+    if (!sugestao) return
+
+    setAdicionandoSugestao(true)
+
+    const cat = categorias.find((c) => c.atributo === sugestao.atributo)
+    const amanha = somarDias(dataDeHoje(), 1)
+
+    const { data, error } = await supabase
+      .from('tarefa')
+      .insert({
+        usuario_id: usuario.id,
+        titulo: convites[sugestao.atributo],
+        categoria: cat.id,
+        data_ref: amanha,
+        recorrente: false,
+      })
+      .select()
+      .single()
+
+    setAdicionandoSugestao(false)
+
+    if (error) {
+      console.log('erro ao adicionar a sugestao', error)
+      return
+    }
+
+    setTarefasDeAmanha((atual) => [...atual, data])
+    // a sugestao ja foi atendida - some ate a proxima busca (troca de dia
+    // ou o app reabrir) em vez de continuar oferecendo a mesma coisa
+    setSugestao(null)
+  }
 
   async function buscarTarefasDeAmanha() {
     const amanha = somarDias(dataDeHoje(), 1)
@@ -495,6 +577,69 @@ function TelaHoje({ usuario, diaAtual }) {
     }
   }
 
+  function comecarEditar(tarefa) {
+    setEditandoId(tarefa.id)
+    setTituloEdit(tarefa.titulo)
+    setCategoriaEdit(tarefa.categoria)
+    setDataEdit(tarefa.data_ref)
+    setErroEdit('')
+  }
+
+  function cancelarEdicao() {
+    setEditandoId(null)
+  }
+
+  async function salvarEdicao(e, tarefa) {
+    e.preventDefault()
+
+    const tituloLimpo = tituloEdit.trim()
+    if (!tituloLimpo) return
+
+    setSalvandoEdit(true)
+    setErroEdit('')
+
+    const mudancas = { titulo: tituloLimpo, categoria: categoriaEdit }
+
+    // so manda o dia novo se a tarefa ainda nao foi concluida hoje e nao é
+    // rotina: mudar o dia de uma tarefa ja feita deixaria ela "sem
+    // conclusao" no dia novo, como se nunca tivesse sido feita, mesmo com
+    // a recompensa ja dada - a conclusao em si nunca é tocada aqui, so o
+    // que aponta pra ela.
+    if (!tarefa.recorrente && !estaFeita(tarefa)) {
+      mudancas.data_ref = dataEdit || dataDeHoje()
+    }
+
+    // o trigger aplicar_dificuldade() do banco recalcula a dificuldade
+    // sozinho quando a categoria muda - nao precisa mandar ela aqui
+    const { data, error } = await supabase
+      .from('tarefa')
+      .update(mudancas)
+      .eq('id', tarefa.id)
+      .select()
+      .single()
+
+    setSalvandoEdit(false)
+
+    if (error) {
+      console.log('erro ao editar tarefa', error)
+      setErroEdit('não consegui salvar, tenta de novo')
+      return
+    }
+
+    // se o dia mudou pra fora de hoje, a tarefa some da lista - mesma regra
+    // de sempre, so mostra o que é de hoje ou rotina
+    if (data.recorrente || data.data_ref === dataDeHoje()) {
+      setTarefas((atual) => atual.map((t) => (t.id === tarefa.id ? data : t)))
+    } else {
+      setTarefas((atual) => atual.filter((t) => t.id !== tarefa.id))
+      if (data.data_ref === somarDias(dataDeHoje(), 1)) {
+        setTarefasDeAmanha((atual) => [...atual, data])
+      }
+    }
+
+    setEditandoId(null)
+  }
+
   async function sair() {
     await supabase.auth.signOut()
   }
@@ -661,7 +806,7 @@ function TelaHoje({ usuario, diaAtual }) {
             className="amanha-toggle"
             onClick={() => setMostrarAmanha(!mostrarAmanha)}
           >
-            <span>📅 planejar amanhã</span>
+            <span>📅 planejar amanhã {sugestao && !mostrarAmanha && '💡'}</span>
             <span className="amanha-contagem">
               {tarefasDeAmanha.length > 0
                 ? tarefasDeAmanha.length + (tarefasDeAmanha.length === 1 ? ' tarefa' : ' tarefas')
@@ -671,6 +816,29 @@ function TelaHoje({ usuario, diaAtual }) {
 
           {mostrarAmanha && (
             <div className="amanha-conteudo">
+              {/* o heroi-espelho agindo: olha o historico e convida pra
+                  cuidar do atributo mais esquecido, com um toque so */}
+              {sugestao && (
+                <div className="sugestao-espelho">
+                  <p className="sugestao-texto">
+                    {sugestao.dias === Infinity
+                      ? 'ainda não teve nada de '
+                      : 'faz ' + sugestao.dias + ' dias sem nada de '}
+                    {atributos[sugestao.atributo].nome} {atributos[sugestao.atributo].emoji}
+                    {' — '}
+                    {convites[sugestao.atributo]}
+                  </p>
+                  <button
+                    type="button"
+                    className="botao-add-sugestao"
+                    onClick={adicionarSugestao}
+                    disabled={adicionandoSugestao}
+                  >
+                    {adicionandoSugestao ? 'adicionando...' : '+ adicionar pra amanhã'}
+                  </button>
+                </div>
+              )}
+
               {tarefasDeAmanha.length === 0 && (
                 <p className="amanha-vazio">nada planejado pra amanhã ainda.</p>
               )}
@@ -780,6 +948,69 @@ function TelaHoje({ usuario, diaAtual }) {
             const cat = categorias.find((c) => c.id === t.categoria)
             const feita = estaFeita(t)
 
+            if (editandoId === t.id) {
+              return (
+                <li key={t.id} className="tarefa">
+                  <form
+                    className="form-editar-tarefa"
+                    onSubmit={(e) => salvarEdicao(e, t)}
+                  >
+                    <input
+                      type="text"
+                      value={tituloEdit}
+                      onChange={(e) => setTituloEdit(e.target.value)}
+                      maxLength={80}
+                      autoFocus
+                    />
+
+                    <div className="chips">
+                      {categorias.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          className={
+                            categoriaEdit === c.id ? 'chip chip-ativo cor-' + c.id : 'chip'
+                          }
+                          onClick={() => setCategoriaEdit(c.id)}
+                        >
+                          {c.emoji} {c.nome}
+                        </button>
+                      ))}
+                    </div>
+
+                    {!t.recorrente && !feita && (
+                      <input
+                        type="date"
+                        className="input-data"
+                        value={dataEdit}
+                        min={dataDeHoje()}
+                        onChange={(e) => setDataEdit(e.target.value)}
+                      />
+                    )}
+
+                    {!t.recorrente && feita && (
+                      <p className="editar-nota">concluída hoje — não dá pra mudar o dia</p>
+                    )}
+
+                    {erroEdit && <p className="erro-form">{erroEdit}</p>}
+
+                    <div className="botoes-editar">
+                      <button type="submit" disabled={salvandoEdit}>
+                        {salvandoEdit ? 'salvando...' : 'salvar'}
+                      </button>
+                      <button
+                        type="button"
+                        className="botao-cancelar-nome"
+                        onClick={cancelarEdicao}
+                      >
+                        cancelar
+                      </button>
+                    </div>
+                  </form>
+                </li>
+              )
+            }
+
             return (
               <li key={t.id} className={feita ? 'tarefa tarefa-feita' : 'tarefa'}>
                 <button
@@ -804,6 +1035,15 @@ function TelaHoje({ usuario, diaAtual }) {
                     )}
                   </span>
                 </div>
+
+                <button
+                  className="botao-editar"
+                  onClick={() => comecarEditar(t)}
+                  disabled={!!emAndamento[t.id]}
+                  aria-label="editar tarefa"
+                >
+                  ✏️
+                </button>
 
                 <button
                   className="botao-apagar"
