@@ -16,7 +16,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 12:** planejar o dia seguinte — aba Semana e seletor de dia
 - **Dia 13:** nome de verdade na saudação, em vez do pedaço do email
 - **Dia 14:** reduzir o atrito de planejar — repetir plano de ontem e lembrete à noite
-- **Dia 15:** o espelho sugerindo tarefa, editar tarefa e revisão da edição de nome (esse aqui)
+- **Dia 15:** o espelho sugerindo tarefa, editar tarefa e revisão da edição de nome
+- **Dia 16:** objetivos de longo prazo — o grande vira passos pequenos (esse aqui)
 
 Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
 decide a batalha é só o que você fez na vida real.
@@ -44,7 +45,7 @@ npm install
 
 ### 3. Criar as tabelas
 
-No menu da esquerda, entra em **SQL Editor** e roda os cinco arquivos
+No menu da esquerda, entra em **SQL Editor** e roda os seis arquivos
 **nessa ordem**, um de cada vez (copia o conteúdo, cola e clica em
 **Run**):
 
@@ -59,9 +60,11 @@ No menu da esquerda, entra em **SQL Editor** e roda os cinco arquivos
    `fase`, que guarda até onde a batalha chegou
 5. [`supabase/migracao_dia9.sql`](supabase/migracao_dia9.sql) — as colunas
    de energia, que é o que a batalha gasta pra tentar
+6. [`supabase/migracao_dia16.sql`](supabase/migracao_dia16.sql) — a tabela
+   `objetivo` e o vínculo da tarefa com ele
 
 Só o primeiro arquivo **não** deixa o banco atualizado — o app quebra sem
-os outros quatro.
+os outros cinco.
 
 ### 4. Pegar a URL e a chave
 
@@ -286,6 +289,68 @@ inscrição, Edge Function, cron) que esse projeto não tem hoje.
    no Supabase que a `dificuldade` mudou sozinha (é o trigger
    `aplicar_dificuldade()` fazendo isso, não o app)
 
+## Como testar objetivos de longo prazo
+
+### Criar um objetivo e vincular tarefa
+
+1. Vai na aba **Objetivos** e toca em **+ novo objetivo**
+2. Preenche o título, escolhe a categoria, e o tipo:
+   - **por etapas** (ex: "ler 10 capítulos") — o alvo é a quantidade,
+     cada tarefa concluída soma **1** sozinha, sem perguntar nada
+   - **por valor** (ex: "juntar 5000 pra viagem") — o alvo é o número
+     final; ao vincular uma tarefa a esse objetivo, o app pergunta
+     "quanto isso adianta?" e você digita o valor daquela tarefa
+     específica (ex: 100)
+3. Preenche o alvo (e a unidade, tipo "capítulos" ou "R$") e cria
+4. Na tela **Hoje**, cria uma tarefa nova: aparece um seletor **🎯
+   vincular a um objetivo (opcional)** logo abaixo das categorias.
+   Escolhe o objetivo que você criou
+5. Marca essa tarefa como feita: volta na aba Objetivos e confere que a
+   barra andou (1 etapa, ou o valor que você digitou)
+6. Desmarca a mesma tarefa: o progresso volta pro que era antes —
+   nunca fica "emprestado"
+
+### Objetivo concluído (comemoração) e voltando atrás
+
+1. Repete o passo acima até o progresso bater o alvo (crie e conclua
+   tarefas suficientes)
+2. Ao bater o alvo, aparece uma tela de comemoração 🎉 por cima de
+   tudo — toca em **continuar** (ou em qualquer lugar fora do cartão)
+   pra fechar
+3. Na aba Objetivos, ele não aparece mais na lista principal — foi pra
+   **🏆 concluídos**, com a data. Ele não some de verdade, só sai do
+   caminho
+4. Se desmarcar a última tarefa que completou o objetivo (lá na tela
+   Hoje), ele volta sozinho pra lista de ativos — o status sempre
+   reflete o progresso de verdade, nunca fica "mentindo"
+
+### Objetivo parado sugerindo um passo (o espelho agindo)
+
+1. Cria um objetivo e não vincula nenhuma tarefa a ele por alguns dias
+   (ou edita `ultima_atividade` pra uma data antiga direto no **Table
+   Editor > objetivo**, pra não precisar esperar)
+2. Passados mais de 4 dias sem nenhuma tarefa vinculada concluída, abre
+   o painel **📅 planejar amanhã** na tela Hoje: aparece um cartão "faz
+   X dias sem avançar em '[objetivo]' — que tal um passo pequeno pra
+   amanhã?"
+3. Toca em **+ criar um passo pra isso**: pula pro formulário com
+   "amanhã" e o objetivo já selecionados, só falta escrever o passo em
+   si (de propósito — o passo é pessoal demais pra vir pronto, ao
+   contrário do convite de atributo que é sempre a mesma frase)
+
+### Arquivar sem culpa
+
+Na aba Objetivos, toca no ✕ do cartão. Confirma, e ele simplesmente sai
+da tela — não vira "objetivo abandonado" em lugar nenhum visível, não
+some o que já tinha avançado no banco (fica lá, só o status muda pra
+`arquivado`), e não tem um segundo aviso de "tem certeza mesmo?".
+
+### Poucos objetivos de cada vez
+
+Cria um quarto objetivo ativo (o limite sugerido é 3): aparece um aviso
+gentil "você já tem N objetivos ativos — poucos de cada vez funciona
+melhor". Não bloqueia nada, é só um lembrete.
+
 ## Sobre o nome de usuário (dia 13, revisado)
 
 Isso já existe desde o dia 13 — **Herói**, toca no nome (✏️ do lado),
@@ -412,3 +477,28 @@ que manda o push, e um `pg_cron` conferindo o horário de cada um. Fica
 pra quando isso incomodar de verdade - hoje o app de uma pessoa só
 aberta às vezes já cobre o caso comum (celular com o app instalado,
 aberto em algum momento da noite).
+
+### Objetivo: vínculo só se escolhe na criação, e só na tela Hoje
+Depois de criar a tarefa vinculada a um objetivo, não dá pra trocar
+esse vínculo editando ela (o formulário de editar mexe só em
+título/categoria/dia, não em objetivo/incremento) - se errou o
+objetivo, o jeito é apagar e criar de novo. Também só dá pra vincular
+tarefa a objetivo pelo formulário da tela Hoje; a aba Semana e o
+"repetir tarefas de ontem" ainda não têm esse seletor. Nenhuma tarefa
+antiga fica "presa" por causa disso - só não tem o atalho ainda.
+
+### Objetivo arquivado não tem como reativar pela tela
+Arquivar muda o `status` pra `arquivado` e ele some da aba Objetivos de
+propósito (é o "sem culpa" do pedido). Mas hoje não tem um jeito de ver
+os arquivados de novo e voltar pra ativo - só editando a linha direto
+no **Table Editor** do Supabase. Se um dia isso incomodar (arquivou
+sem querer, por exemplo), é uma tela de "arquivados" simples de
+adicionar.
+
+### `objetivo.progresso` tem a mesma dívida da recompensa
+`mexerNoObjetivo()` no `TelaHoje.jsx` segue exatamente o mesmo padrão
+do `mexerNoPerfil()` (documentado acima em "recompensa é calculada no
+cliente") - quem abrir o DevTools consegue mandar um `update` direto na
+tabela `objetivo` e forjar progresso. Mesmo raciocínio: só quem pode
+trapacear hoje é quem já é dono dos próprios dados, então fica pra
+quando tiver mais gente usando o app.

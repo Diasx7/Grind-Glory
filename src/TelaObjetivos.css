@@ -1,0 +1,391 @@
+/* tela Objetivos - mesmo clima das outras, celular primeiro */
+.tela-objetivos {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #f1eaff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.brilho-objetivos {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.conteudo-objetivos {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  /* o padding de baixo é grande por causa da barra de abas fixa */
+  padding: 28px 20px 100px;
+}
+
+.objetivos-aviso {
+  color: #b9aed1;
+  font-size: 14px;
+  text-align: center;
+  padding-top: 60px;
+}
+
+.objetivos-erro {
+  text-align: center;
+  padding-top: 60px;
+}
+
+.objetivos-erro .objetivos-aviso {
+  padding-top: 0;
+}
+
+.botao-tentar-de-novo {
+  margin-top: 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f1eaff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botao-tentar-de-novo:hover {
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+/* ---------- topo ---------- */
+.topo-objetivos {
+  margin-bottom: 22px;
+}
+
+.titulo-objetivos {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.subtitulo-objetivos {
+  font-size: 13px;
+  color: #b9aed1;
+  margin-top: 4px;
+}
+
+/* ---------- estado vazio (mesma cara das outras telas) ---------- */
+.vazio {
+  text-align: center;
+  padding: 36px 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.vazio-emoji {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.vazio-titulo {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.vazio-texto {
+  font-size: 14px;
+  color: #b9aed1;
+  line-height: 1.55;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* ---------- cartao de objetivo ---------- */
+.lista-objetivos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cartao-objetivo {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.objetivo-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.objetivo-titulo {
+  font-size: 15px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.botao-arquivar {
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  flex-shrink: 0;
+}
+
+.botao-arquivar:hover {
+  color: #ff8095;
+}
+
+/* a barra é grossa que nem a de atributo do Heroi - quanto mais grossa,
+   mais satisfatorio ver ela enchendo */
+.objetivo-barra-fundo {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.objetivo-barra-cheia {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+
+/* mesmas cores da tela do Heroi: cada categoria puxa a cor do atributo
+   dela, pra tudo bater no app inteiro */
+.barra-cheia-inteligencia {
+  background: linear-gradient(90deg, #4a6fd4, #7aa2ff);
+}
+
+.barra-cheia-forca {
+  background: linear-gradient(90deg, #3f9c6d, #6fd39b);
+}
+
+.barra-cheia-agilidade {
+  background: linear-gradient(90deg, #c8853f, #f0b46a);
+}
+
+.barra-cheia-generico {
+  background: linear-gradient(90deg, #aa3bff, #c084fc);
+}
+
+.objetivo-numeros {
+  font-size: 12px;
+  color: #b9aed1;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.aviso-limite {
+  font-size: 12px;
+  color: #c084fc;
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- botao e formulario de criar ---------- */
+.botao-novo-objetivo {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(192, 132, 252, 0.4);
+  color: #c084fc;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.botao-novo-objetivo:hover {
+  border-style: solid;
+}
+
+.form-objetivo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.form-objetivo input[type='text'],
+.form-objetivo input[type='number'] {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  color: #f1eaff;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-objetivo input:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b9aed1;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.chip-ativo {
+  color: #f1eaff;
+  font-weight: 500;
+}
+
+.chip-ativo.cor-estudo,
+.chip-ativo.cor-leitura {
+  border-color: #7aa2ff;
+  background: rgba(122, 162, 255, 0.15);
+}
+
+.chip-ativo.cor-exercicio,
+.chip-ativo.cor-saude {
+  border-color: #6fd39b;
+  background: rgba(111, 211, 155, 0.15);
+}
+
+.chip-ativo.cor-trabalho,
+.chip-ativo.cor-organizacao {
+  border-color: #f0b46a;
+  background: rgba(240, 180, 106, 0.15);
+}
+
+.seletor-tipo {
+  display: flex;
+  gap: 8px;
+}
+
+.chip-dia-ativo {
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
+  color: #f1eaff;
+  font-weight: 500;
+}
+
+.linha-alvo {
+  display: flex;
+  gap: 8px;
+}
+
+.linha-alvo input[type='number'] {
+  flex: 2;
+}
+
+.input-unidade {
+  flex: 1;
+}
+
+.erro-form {
+  color: #ff8095;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.botoes-editar {
+  display: flex;
+  gap: 8px;
+}
+
+.botoes-editar button {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.botoes-editar button[type='submit'] {
+  background: #aa3bff;
+  color: #fff;
+}
+
+.botoes-editar button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.botao-cancelar-nome {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #b9aed1;
+}
+
+/* ---------- concluidos ---------- */
+.painel-concluidos {
+  margin-top: 20px;
+}
+
+.concluidos-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #f1eaff;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.lista-concluidos {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #b9aed1;
+}
+
+.lista-concluidos li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+}
+
+.concluido-data {
+  color: #6e6482;
+  flex-shrink: 0;
+}

@@ -115,3 +115,26 @@ export function atributoMaisEsquecido(historico) {
 
   return escolhido ? { atributo: escolhido, dias: maiorDias } : null
 }
+
+// olha os objetivos ativos e acha o que ta parado ha mais tempo (sem
+// nenhuma tarefa vinculada concluida). o limite é maior que o do atributo
+// (4 dias em vez de 2) porque objetivo grande anda mais devagar por
+// natureza - "parado ha 3 dias" nao é sinal de nada ainda.
+export function objetivoMaisParado(objetivosAtivos) {
+  let escolhido = null
+  let maiorDias = 4
+
+  objetivosAtivos.forEach((o) => {
+    // sem nenhuma atividade ainda, conta a partir de quando foi criado -
+    // um objetivo criado ha 1 hora nao esta "abandonado"
+    const referencia = o.ultima_atividade || o.criado_em.slice(0, 10)
+    const dias = diasDesde(referencia)
+
+    if (dias > maiorDias) {
+      maiorDias = dias
+      escolhido = o
+    }
+  })
+
+  return escolhido ? { objetivo: escolhido, dias: maiorDias } : null
+}

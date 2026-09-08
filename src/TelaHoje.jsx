@@ -6,6 +6,7 @@ import {
   categorias,
   convites,
   dataDeHoje,
+  objetivoMaisParado,
   somarDias,
   tetoDeEnergia,
 } from './jogo'
@@ -61,6 +62,18 @@ function TelaHoje({ usuario, diaAtual }) {
   const [salvandoEdit, setSalvandoEdit] = useState(false)
   const [erroEdit, setErroEdit] = useState('')
 
+  // objetivos ativos - pra vincular tarefa nova, sugerir passo pra um
+  // parado, e empurrar o progresso quando a tarefa vinculada é concluida
+  const [objetivos, setObjetivos] = useState([])
+  const [objetivoVinculado, setObjetivoVinculado] = useState('')
+  const [incrementoObjetivo, setIncrementoObjetivo] = useState('')
+  const [sugestaoObjetivo, setSugestaoObjetivo] = useState(null)
+  const [celebracao, setCelebracao] = useState(null)
+
+  // mesma ideia do perfilRef: espelho atualizado na hora, pra duas
+  // conclusoes seguidas nao lerem o mesmo progresso desatualizado
+  const objetivosRef = useRef({})
+
   const tempoDoGanho = useRef(null)
   const inputTituloRef = useRef(null)
 
@@ -78,6 +91,7 @@ function TelaHoje({ usuario, diaAtual }) {
     buscarTudo()
     buscarTarefasDeAmanha()
     buscarSugestao()
+    buscarObjetivos()
     // busca de novo quando o dia vira (o App avisa via diaAtual), senao a
     // lista continuava mostrando as tarefas de ontem com o app aberto
 
@@ -147,6 +161,86 @@ function TelaHoje({ usuario, diaAtual }) {
     // a sugestao ja foi atendida - some ate a proxima busca (troca de dia
     // ou o app reabrir) em vez de continuar oferecendo a mesma coisa
     setSugestao(null)
+  }
+
+  // busca os objetivos ativos - pra popular o seletor de vincular na hora
+  // de criar tarefa, e pra ver se algum ta parado ha muitos dias
+  async function buscarObjetivos() {
+    const { data, error } = await supabase
+      .from('objetivo')
+      .select('*')
+      .eq('usuario_id', usuario.id)
+      .eq('status', 'ativo')
+      .order('criado_em', { ascending: true })
+
+    if (error) {
+      console.log('erro ao buscar objetivos', error)
+      return
+    }
+
+    const porId = {}
+    data.forEach((o) => {
+      porId[o.id] = o
+    })
+    objetivosRef.current = porId
+
+    setObjetivos(data)
+    setSugestaoObjetivo(objetivoMaisParado(data))
+  }
+
+  // atalho: pula pro formulario ja com "amanha" e o objetivo selecionados
+  function focarEmObjetivo(objetivoId) {
+    setDataEscolhida(somarDias(dataDeHoje(), 1))
+    setObjetivoVinculado(String(objetivoId))
+    inputTituloRef.current?.focus()
+  }
+
+  // soma (ou devolve) progresso num objetivo quando uma tarefa vinculada é
+  // concluida/desmarcada. mesma ideia da perfilRef: le e escreve na ref,
+  // nao no estado, pra duas conclusoes rapidas nao pegarem o mesmo numero
+  // de base uma da outra.
+  async function mexerNoObjetivo(objetivoId, incremento) {
+    const atual = objetivosRef.current[objetivoId]
+    if (!atual) return // pode ter sido arquivado nesse meio tempo
+
+    const novoProgresso = Math.max(0, Number(atual.progresso) + incremento)
+    const mudancas = { progresso: novoProgresso }
+
+    if (incremento > 0) {
+      mudancas.ultima_atividade = dataDeHoje()
+    }
+
+    // bateu o alvo agora? conclui e avisa a celebracao. se a pessoa
+    // desmarcar depois a tarefa que completou, volta a ficar ativo -
+    // senao o status ficaria mentindo (concluido com progresso < alvo).
+    if (atual.status === 'ativo' && novoProgresso >= Number(atual.alvo)) {
+      mudancas.status = 'concluido'
+      mudancas.concluido_em = new Date().toISOString()
+    } else if (atual.status === 'concluido' && novoProgresso < Number(atual.alvo)) {
+      mudancas.status = 'ativo'
+      mudancas.concluido_em = null
+    }
+
+    const atualizado = { ...atual, ...mudancas }
+    objetivosRef.current = { ...objetivosRef.current, [objetivoId]: atualizado }
+
+    // so continua na lista (e no seletor) enquanto ativo - concluido some
+    // do dia a dia, mas fica guardado na aba Objetivos
+    if (atualizado.status === 'ativo') {
+      setObjetivos((atual2) => atual2.map((o) => (o.id === objetivoId ? atualizado : o)))
+    } else {
+      setObjetivos((atual2) => atual2.filter((o) => o.id !== objetivoId))
+    }
+
+    const { error } = await supabase.from('objetivo').update(mudancas).eq('id', objetivoId)
+
+    if (error) {
+      console.log('erro ao atualizar o objetivo', error)
+    }
+
+    if (mudancas.status === 'concluido') {
+      setCelebracao(atualizado)
+    }
   }
 
   async function buscarTarefasDeAmanha() {
@@ -387,6 +481,25 @@ function TelaHoje({ usuario, diaAtual }) {
     const textoLimpo = titulo.trim()
     if (!textoLimpo) return
 
+    // se vinculou a um objetivo "por valor", precisa dizer quanto essa
+    // tarefa especifica adianta. em "por etapas" nao pergunta nada, o
+    // avanço é sempre 1 - é assim que a etapa vira algo pequeno e simples.
+    const objetivoEscolhido = objetivos.find((o) => String(o.id) === objetivoVinculado)
+    let incremento = null
+
+    if (objetivoEscolhido) {
+      if (objetivoEscolhido.tipo === 'valor') {
+        const valorNumero = Number(incrementoObjetivo)
+        if (!valorNumero || valorNumero <= 0) {
+          setErroForm('quanto essa tarefa adianta no objetivo? preenche o valor.')
+          return
+        }
+        incremento = valorNumero
+      } else {
+        incremento = 1
+      }
+    }
+
     const hoje = dataDeHoje()
     // rotina sempre começa hoje (o seletor de dia fica escondido quando
     // repete ta ligado); se o campo de data ficar vazio por algum motivo,
@@ -403,6 +516,8 @@ function TelaHoje({ usuario, diaAtual }) {
         // numa rotina o data_ref vira "desde quando ela existe"
         data_ref: diaDaTarefa,
         recorrente: repete,
+        objetivo_id: objetivoEscolhido ? objetivoEscolhido.id : null,
+        objetivo_incremento: incremento,
       })
       .select()
       .single()
@@ -417,6 +532,10 @@ function TelaHoje({ usuario, diaAtual }) {
     // desligo o repete de novo de proposito: rotina criada sem querer
     // volta todo dia e so sai arquivando, entao prefiro pedir de novo
     setRepete(false)
+    // o objetivo vinculado fica (é comum criar varias tarefas seguidas
+    // pro mesmo objetivo numa sessao de planejamento), mas o valor especifico
+    // de cada uma nao - senao a proxima tarefa herdava o numero da anterior
+    setIncrementoObjetivo('')
 
     // so entra na lista de hoje se for pra hoje - uma tarefa criada pra
     // amanha nao pode aparecer nem contar na tela agora
@@ -484,6 +603,11 @@ function TelaHoje({ usuario, diaAtual }) {
     const energia = energiaAoConcluir()
     mexerNoPerfil(ganho.moedas, ganho.xp, ganho.atributo, ganho.pontos, energia)
 
+    // se essa tarefa empurra um objetivo, avança ele tambem
+    if (tarefa.objetivo_id) {
+      mexerNoObjetivo(tarefa.objetivo_id, Number(tarefa.objetivo_incremento) || 0)
+    }
+
     const cat = categorias.find((c) => c.id === tarefa.categoria)
     mostrarGanho({ ...ganho, energia: energia }, cat ? cat.nome : '')
     setEmAndamento((atual) => ({ ...atual, [tarefa.id]: false }))
@@ -517,6 +641,10 @@ function TelaHoje({ usuario, diaAtual }) {
       -conclusao.pontos_atributo,
       energiaAoDesmarcar(),
     )
+
+    if (tarefa.objetivo_id) {
+      mexerNoObjetivo(tarefa.objetivo_id, -(Number(tarefa.objetivo_incremento) || 0))
+    }
   }
 
   // o mesmo ✕ faz coisas diferentes: tarefa solta some, rotina é arquivada
@@ -563,6 +691,10 @@ function TelaHoje({ usuario, diaAtual }) {
         -conclusao.pontos_atributo,
         energiaAoDesmarcar(),
       )
+
+      if (tarefa.objetivo_id) {
+        mexerNoObjetivo(tarefa.objetivo_id, -(Number(tarefa.objetivo_incremento) || 0))
+      }
     }
 
     setTarefas(tarefas.filter((t) => t.id !== tarefa.id))
@@ -668,6 +800,9 @@ function TelaHoje({ usuario, diaAtual }) {
   const feitas = tarefas.filter((t) => estaFeita(t)).length
   const total = tarefas.length
   const porcentagem = total === 0 ? 0 : (feitas / total) * 100
+
+  // pra saber se mostra o campo de "quanto isso adianta" no formulario
+  const objetivoNoForm = objetivos.find((o) => String(o.id) === objetivoVinculado)
 
   return (
     <div className="tela-hoje">
@@ -779,6 +914,40 @@ function TelaHoje({ usuario, diaAtual }) {
             ))}
           </div>
 
+          {/* vincular a tarefa num objetivo grande - opcional, so aparece
+              se ja existir algum objetivo ativo */}
+          {objetivos.length > 0 && (
+            <div className="seletor-objetivo">
+              <select
+                className="select-objetivo"
+                value={objetivoVinculado}
+                onChange={(e) => {
+                  setObjetivoVinculado(e.target.value)
+                  setIncrementoObjetivo('')
+                }}
+              >
+                <option value="">🎯 vincular a um objetivo (opcional)</option>
+                {objetivos.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.titulo}
+                  </option>
+                ))}
+              </select>
+
+              {objetivoNoForm && objetivoNoForm.tipo === 'valor' && (
+                <input
+                  type="number"
+                  className="input-incremento"
+                  placeholder="quanto isso adianta?"
+                  value={incrementoObjetivo}
+                  onChange={(e) => setIncrementoObjetivo(e.target.value)}
+                  min="0"
+                  step="any"
+                />
+              )}
+            </div>
+          )}
+
           {/* fica numa linha separada dos chips porque nao é categoria,
               é outra coisa: se a tarefa volta amanha ou nao */}
           <button
@@ -816,6 +985,28 @@ function TelaHoje({ usuario, diaAtual }) {
 
           {mostrarAmanha && (
             <div className="amanha-conteudo">
+              {/* objetivo grande parado ha dias - convida a dar um passo
+                  pequeno, sem cobrar. pula pro formulario ja com o
+                  objetivo escolhido, porque o passo em si é pessoal
+                  demais pra vir preenchido sozinho (ao contrario do
+                  convite de atributo, que é sempre a mesma frase). */}
+              {sugestaoObjetivo && (
+                <div className="sugestao-espelho">
+                  <p className="sugestao-texto">
+                    faz {sugestaoObjetivo.dias} dias sem avançar em "
+                    {sugestaoObjetivo.objetivo.titulo}" — que tal um passo
+                    pequeno pra amanhã?
+                  </p>
+                  <button
+                    type="button"
+                    className="botao-add-sugestao"
+                    onClick={() => focarEmObjetivo(sugestaoObjetivo.objetivo.id)}
+                  >
+                    + criar um passo pra isso
+                  </button>
+                </div>
+              )}
+
               {/* o heroi-espelho agindo: olha o historico e convida pra
                   cuidar do atributo mais esquecido, com um toque so */}
               {sugestao && (
@@ -1077,6 +1268,25 @@ function TelaHoje({ usuario, diaAtual }) {
               menor, mas continua valendo
             </span>
           )}
+        </div>
+      )}
+
+      {/* comemoracao quando um objetivo bate o alvo - toque em qualquer
+          lugar fecha, sem exigir achar um botao especifico */}
+      {celebracao && (
+        <div className="celebracao-fundo" onClick={() => setCelebracao(null)}>
+          <div className="celebracao-cartao">
+            <div className="celebracao-emoji">🎉</div>
+            <p className="celebracao-titulo">objetivo concluído!</p>
+            <p className="celebracao-nome">{celebracao.titulo}</p>
+            <button
+              type="button"
+              className="celebracao-botao"
+              onClick={() => setCelebracao(null)}
+            >
+              continuar
+            </button>
+          </div>
         </div>
       )}
     </div>

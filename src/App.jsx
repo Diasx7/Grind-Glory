@@ -4,6 +4,7 @@ import { dataDeHoje, somarDias } from './jogo'
 import Login from './Login'
 import TelaHoje from './TelaHoje'
 import TelaSemana from './TelaSemana'
+import TelaObjetivos from './TelaObjetivos'
 import TelaHeroi from './TelaHeroi'
 import TelaBatalha from './TelaBatalha'
 import './App.css'
@@ -216,6 +217,7 @@ function App() {
       <>
         {aba === 'hoje' && <TelaHoje usuario={sessao.user} diaAtual={diaAtual} />}
         {aba === 'semana' && <TelaSemana usuario={sessao.user} diaAtual={diaAtual} />}
+        {aba === 'objetivos' && <TelaObjetivos usuario={sessao.user} />}
         {aba === 'heroi' && <TelaHeroi usuario={sessao.user} />}
         {aba === 'batalha' && <TelaBatalha usuario={sessao.user} />}
 
@@ -236,6 +238,13 @@ function App() {
           >
             <span className="aba-emoji">🗓️</span>
             Semana
+          </button>
+          <button
+            className={aba === 'objetivos' ? 'aba aba-ativa' : 'aba'}
+            onClick={() => setAba('objetivos')}
+          >
+            <span className="aba-emoji">🎯</span>
+            Objetivos
           </button>
           <button
             className={aba === 'heroi' ? 'aba aba-ativa' : 'aba'}
