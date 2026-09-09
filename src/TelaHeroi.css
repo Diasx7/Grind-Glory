@@ -1,8 +1,8 @@
 /* tela do heroi - mesmo clima da tela Hoje, celular primeiro */
 .tela-heroi {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   position: relative;
   overflow-x: hidden;
 }
@@ -14,7 +14,7 @@
   transform: translateX(-50%);
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 28%, transparent) 0%, transparent 70%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -29,7 +29,7 @@
 }
 
 .heroi-aviso {
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   font-size: 14px;
   text-align: center;
   padding-top: 60px;
@@ -48,8 +48,8 @@
 .botao-tentar-de-novo {
   margin-top: 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #f1eaff;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 9px 18px;
@@ -58,14 +58,14 @@
 }
 
 .botao-tentar-de-novo:hover {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 /* ---------- cartao de cima: carinha, nivel, xp, moeda ---------- */
 .cartao-heroi {
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 18px;
   padding: 24px 20px 18px;
   margin-bottom: 30px;
@@ -118,11 +118,11 @@
 }
 
 .form-nome input {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(192, 132, 252, 0.5);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 50%, transparent);
   border-radius: 8px;
   padding: 6px 10px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 15px;
   font-family: inherit;
   text-align: center;
@@ -142,8 +142,8 @@
 }
 
 .form-nome button[type='submit'] {
-  background: #aa3bff;
-  color: #fff;
+  background: var(--cor-destaque);
+  color: var(--cor-botao-texto);
 }
 
 .form-nome button[type='submit']:disabled {
@@ -153,19 +153,19 @@
 
 .botao-cancelar-nome {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 20%, transparent);
+  color: var(--cor-texto-secundario);
 }
 
 .erro-nome {
   width: 100%;
   font-size: 12px;
-  color: #ff8095;
+  color: var(--cor-perigo);
 }
 
 .heroi-nivel {
   font-size: 13px;
-  color: #c084fc;
+  color: var(--cor-destaque);
   letter-spacing: 1px;
   margin: 4px 0 14px;
 }
@@ -173,20 +173,20 @@
 .barra-nivel {
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 8%, transparent);
   overflow: hidden;
 }
 
 .barra-nivel-cheia {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  background: linear-gradient(90deg, var(--cor-destaque), var(--cor-destaque-2));
   transition: width 0.4s ease;
 }
 
 .heroi-xp {
   font-size: 11px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-top: 7px;
 }
 
@@ -196,9 +196,9 @@
   gap: 16px;
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid color-mix(in srgb, var(--cor-texto) 7%, transparent);
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   font-variant-numeric: tabular-nums;
 }
 
@@ -207,21 +207,21 @@
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-bottom: 10px;
 }
 
 .frase-espelho {
   font-size: 14px;
   line-height: 1.55;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-bottom: 24px;
 }
 
 .heroi-vazio {
   text-align: center;
   padding: 26px 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed color-mix(in srgb, var(--cor-texto) 12%, transparent);
   border-radius: 16px;
   margin-bottom: 24px;
 }
@@ -233,7 +233,7 @@
 
 .heroi-vazio-texto {
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.55;
 }
 
@@ -266,7 +266,7 @@
 .barra-fundo {
   height: 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
   overflow: hidden;
 }
 
@@ -279,33 +279,61 @@
 }
 
 .barra-inteligencia {
-  background: linear-gradient(90deg, #4a6fd4, #7aa2ff);
+  background: linear-gradient(90deg, var(--cor-inteligencia-2), var(--cor-inteligencia));
 }
 
 .barra-forca {
-  background: linear-gradient(90deg, #3f9c6d, #6fd39b);
+  background: linear-gradient(90deg, var(--cor-forca-2), var(--cor-forca));
 }
 
 .barra-agilidade {
-  background: linear-gradient(90deg, #c8853f, #f0b46a);
+  background: linear-gradient(90deg, var(--cor-agilidade-2), var(--cor-agilidade));
 }
 
 .atributo-recado {
   font-size: 12px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   line-height: 1.5;
   margin-top: 8px;
 }
 
-/* quando ta parado ha dias o recado fica mais visivel - mas em roxo,
-   nao em vermelho: é convite, nao alerta de erro */
+/* quando ta parado ha dias o recado fica mais visivel - no destaque do
+   tema, nao em vermelho: é convite, nao alerta de erro */
 .recado-chamando {
-  color: #c084fc;
+  color: var(--cor-destaque);
 }
 
 /* com a energia entrando, sao 3 itens - deixa quebrar linha no celular */
 .heroi-bolsos {
   flex-wrap: wrap;
+}
+
+/* ---------- escolha de tema (claro / escuro / sistema) ---------- */
+.bloco-aparencia {
+  margin-top: 30px;
+}
+
+.tema-opcoes {
+  display: flex;
+  gap: 8px;
+}
+
+.tema-botao {
+  flex: 1;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 20%, transparent);
+  color: var(--cor-texto-secundario);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 10px 6px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tema-botao-ativo {
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
+  color: var(--cor-texto);
 }
 
 /* ---------- lembrete de planejar a noite ---------- */
@@ -319,28 +347,28 @@
   justify-content: space-between;
   gap: 10px;
   font-size: 13px;
-  color: #b9aed1;
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--cor-texto-secundario);
+  background: color-mix(in srgb, var(--cor-texto) 4%, transparent);
   border-radius: 10px;
   padding: 11px 12px;
   margin-bottom: 8px;
 }
 
 .lembrete-linha select {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f1eaff;
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 15%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 5px 8px;
   border-radius: 6px;
 }
 
-/* interruptor tipo pilula, acende roxo quando ligado */
+/* interruptor tipo pilula, acende no destaque do tema quando ligado */
 .interruptor {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto-secundario);
   font-family: inherit;
   font-size: 12px;
   padding: 6px 14px;
@@ -350,14 +378,14 @@
 }
 
 .interruptor-ligado {
-  border-color: #c084fc;
-  background: rgba(192, 132, 252, 0.15);
-  color: #f1eaff;
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
+  color: var(--cor-texto);
 }
 
 .lembrete-nota {
   font-size: 12px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   line-height: 1.5;
   margin-top: 10px;
 }

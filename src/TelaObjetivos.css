@@ -1,8 +1,8 @@
 /* tela Objetivos - mesmo clima das outras, celular primeiro */
 .tela-objetivos {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   position: relative;
   overflow-x: hidden;
 }
@@ -14,7 +14,7 @@
   transform: translateX(-50%);
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 28%, transparent) 0%, transparent 70%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -29,7 +29,7 @@
 }
 
 .objetivos-aviso {
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   font-size: 14px;
   text-align: center;
   padding-top: 60px;
@@ -47,8 +47,8 @@
 .botao-tentar-de-novo {
   margin-top: 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #f1eaff;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 9px 18px;
@@ -57,7 +57,7 @@
 }
 
 .botao-tentar-de-novo:hover {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 /* ---------- topo ---------- */
@@ -72,7 +72,7 @@
 
 .subtitulo-objetivos {
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-top: 4px;
 }
 
@@ -80,7 +80,7 @@
 .vazio {
   text-align: center;
   padding: 36px 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed color-mix(in srgb, var(--cor-texto) 12%, transparent);
   border-radius: 16px;
   margin-bottom: 20px;
 }
@@ -97,7 +97,7 @@
 
 .vazio-texto {
   font-size: 14px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.55;
   max-width: 300px;
   margin: 0 auto;
@@ -112,8 +112,8 @@
 }
 
 .cartao-objetivo {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border-radius: 14px;
   padding: 16px;
 }
@@ -135,7 +135,7 @@
 .botao-arquivar {
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-size: 14px;
   cursor: pointer;
   padding: 4px 6px;
@@ -143,7 +143,7 @@
 }
 
 .botao-arquivar:hover {
-  color: #ff8095;
+  color: var(--cor-perigo);
 }
 
 /* a barra é grossa que nem a de atributo do Heroi - quanto mais grossa,
@@ -151,7 +151,7 @@
 .objetivo-barra-fundo {
   height: 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 8%, transparent);
   overflow: hidden;
 }
 
@@ -165,31 +165,31 @@
 /* mesmas cores da tela do Heroi: cada categoria puxa a cor do atributo
    dela, pra tudo bater no app inteiro */
 .barra-cheia-inteligencia {
-  background: linear-gradient(90deg, #4a6fd4, #7aa2ff);
+  background: linear-gradient(90deg, var(--cor-inteligencia-2), var(--cor-inteligencia));
 }
 
 .barra-cheia-forca {
-  background: linear-gradient(90deg, #3f9c6d, #6fd39b);
+  background: linear-gradient(90deg, var(--cor-forca-2), var(--cor-forca));
 }
 
 .barra-cheia-agilidade {
-  background: linear-gradient(90deg, #c8853f, #f0b46a);
+  background: linear-gradient(90deg, var(--cor-agilidade-2), var(--cor-agilidade));
 }
 
 .barra-cheia-generico {
-  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  background: linear-gradient(90deg, var(--cor-destaque), var(--cor-destaque-2));
 }
 
 .objetivo-numeros {
   font-size: 12px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-top: 8px;
   font-variant-numeric: tabular-nums;
 }
 
 .aviso-limite {
   font-size: 12px;
-  color: #c084fc;
+  color: var(--cor-destaque);
   text-align: center;
   margin-bottom: 14px;
   line-height: 1.5;
@@ -199,8 +199,8 @@
 .botao-novo-objetivo {
   width: 100%;
   background: transparent;
-  border: 1px dashed rgba(192, 132, 252, 0.4);
-  color: #c084fc;
+  border: 1px dashed color-mix(in srgb, var(--cor-destaque) 40%, transparent);
+  color: var(--cor-destaque);
   font-family: inherit;
   font-size: 14px;
   padding: 12px;
@@ -216,19 +216,19 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 14px;
   padding: 16px;
 }
 
 .form-objetivo input[type='text'],
 .form-objetivo input[type='number'] {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 10px;
   padding: 12px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 14px;
   font-family: inherit;
   width: 100%;
@@ -237,7 +237,7 @@
 
 .form-objetivo input:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .chips {
@@ -248,8 +248,8 @@
 
 .chip {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 12%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 13px;
   font-family: inherit;
   padding: 7px 12px;
@@ -258,30 +258,30 @@
 }
 
 .chip:hover {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: color-mix(in srgb, var(--cor-texto) 28%, transparent);
 }
 
 .chip-ativo {
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
 .chip-ativo.cor-estudo,
 .chip-ativo.cor-leitura {
-  border-color: #7aa2ff;
-  background: rgba(122, 162, 255, 0.15);
+  border-color: var(--cor-inteligencia);
+  background: color-mix(in srgb, var(--cor-inteligencia) 15%, transparent);
 }
 
 .chip-ativo.cor-exercicio,
 .chip-ativo.cor-saude {
-  border-color: #6fd39b;
-  background: rgba(111, 211, 155, 0.15);
+  border-color: var(--cor-forca);
+  background: color-mix(in srgb, var(--cor-forca) 15%, transparent);
 }
 
 .chip-ativo.cor-trabalho,
 .chip-ativo.cor-organizacao {
-  border-color: #f0b46a;
-  background: rgba(240, 180, 106, 0.15);
+  border-color: var(--cor-agilidade);
+  background: color-mix(in srgb, var(--cor-agilidade) 15%, transparent);
 }
 
 .seletor-tipo {
@@ -290,9 +290,9 @@
 }
 
 .chip-dia-ativo {
-  border-color: #c084fc;
-  background: rgba(192, 132, 252, 0.15);
-  color: #f1eaff;
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
@@ -310,7 +310,7 @@
 }
 
 .erro-form {
-  color: #ff8095;
+  color: var(--cor-perigo);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -331,8 +331,8 @@
 }
 
 .botoes-editar button[type='submit'] {
-  background: #aa3bff;
-  color: #fff;
+  background: var(--cor-destaque);
+  color: var(--cor-botao-texto);
 }
 
 .botoes-editar button[type='submit']:disabled {
@@ -342,8 +342,8 @@
 
 .botao-cancelar-nome {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 20%, transparent);
+  color: var(--cor-texto-secundario);
 }
 
 /* ---------- concluidos ---------- */
@@ -356,11 +356,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
@@ -373,7 +373,7 @@
   gap: 8px;
   margin-top: 10px;
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
 }
 
 .lista-concluidos li {
@@ -381,11 +381,11 @@
   justify-content: space-between;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--cor-texto) 3%, transparent);
   border-radius: 10px;
 }
 
 .concluido-data {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   flex-shrink: 0;
 }

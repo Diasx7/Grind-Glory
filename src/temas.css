@@ -1,0 +1,154 @@
+/* TODAS as cores do app vivem aqui, em variaveis. o resto do CSS so usa
+   var(--nome) - nunca mais um hex solto em outro arquivo.
+
+   como funciona a troca de tema:
+   - claro é o padrao (:root sozinho)
+   - escuro entra por dois caminhos: o sistema prefere escuro (media query)
+     OU a pessoa escolheu escuro na mao (atributo data-tema no <html>)
+   - a escolha manual sempre ganha dos dois (por isso o :not([data-tema="claro"])
+     na media query, e o [data-tema="escuro"] depois, mais especifico)
+   - "seguir o sistema" é simplesmente NAO ter o atributo data-tema - af,
+     a media query decide sozinha, e ainda reage se a pessoa mudar o tema
+     do celular com o app aberto */
+
+:root {
+  /* ---------- TEMA CLARO (padrao) ----------
+     pergaminho envelhecido, molduras em bronze fechado, texto escuro.
+     o dourado aparece pouco e nunca em texto (fica pro tema escuro) */
+  --cor-fundo-1: #f6f0e0;
+  --cor-fundo-2: #efe4c8;
+  --cor-fundo-3: #e8d8b0;
+
+  --cor-texto: #3a2e1f;
+  --cor-texto-secundario: #6b5a42;
+  --cor-texto-apagado: #725f42;
+
+  /* "destaque" é o que era roxo vivo antes - texto ativo, borda de
+     selecionado, barra de progresso. no claro é bronze fechado, NUNCA
+     dourado (dourado em texto sobre fundo claro fica ilegivel) */
+  --cor-destaque: #6b5a3e;
+  --cor-destaque-2: #5c4a2e;
+
+  /* dourado de verdade - só pra detalhe pequeno e pontual (uma moldura
+     de destaque, por exemplo). nunca em texto nem em area grande */
+  --cor-ouro: #c8a951;
+
+  --cor-moldura: #6b5a3e;
+  --cor-botao-de: #6b5a3e;
+  --cor-botao-para: #5c4a2e;
+  --cor-botao-texto: #f6f0e0;
+
+  --cor-perigo: #a8323f;
+  --cor-perigo-2: #7a2430;
+
+  --cor-inteligencia: #3457c4;
+  --cor-inteligencia-2: #24409c;
+  --cor-forca: #227a4f;
+  --cor-forca-2: #185c3a;
+  --cor-agilidade: #9c6318;
+  --cor-agilidade-2: #7a4d10;
+
+  /* fundo/borda de cartao, tudo com tinta de bronze em vez de branco/preto
+     puro - assim continua com a cara "pergaminho" mesmo nas superficies */
+  --superficie: rgba(107, 90, 62, 0.06);
+  --superficie-2: rgba(107, 90, 62, 0.04);
+  --painel-solido: rgba(239, 228, 200, 0.97);
+
+  --borda-fraca: rgba(107, 90, 62, 0.25);
+  --borda-media: rgba(107, 90, 62, 0.4);
+  --borda-forte: rgba(107, 90, 62, 0.65);
+
+  --sombra-modal: rgba(58, 46, 31, 0.45);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    /* ---------- TEMA ESCURO, via preferencia do sistema ---------- */
+    --cor-fundo-1: #14101f;
+    --cor-fundo-2: #1b1330;
+    --cor-fundo-3: #2a1743;
+
+    --cor-texto: #e8dcc4;
+    --cor-texto-secundario: #b8a888;
+    --cor-texto-apagado: #8a7a5c;
+
+    --cor-destaque: #c8a951;
+    --cor-destaque-2: #ddc274;
+
+    --cor-ouro: #c8a951;
+
+    --cor-moldura: #6b5a3e;
+    --cor-botao-de: #6b5a3e;
+    --cor-botao-para: #c8a951;
+    --cor-botao-texto: #f6f0e0;
+
+    --cor-perigo: #d9636f;
+    --cor-perigo-2: #a8323f;
+
+    --cor-inteligencia: #7aa2ff;
+    --cor-inteligencia-2: #4a6fd4;
+    --cor-forca: #6fd39b;
+    --cor-forca-2: #3f9c6d;
+    --cor-agilidade: #f0b46a;
+    --cor-agilidade-2: #c8853f;
+
+    --superficie: rgba(232, 220, 196, 0.05);
+    --superficie-2: rgba(232, 220, 196, 0.03);
+    --painel-solido: rgba(26, 19, 36, 0.96);
+
+    --borda-fraca: rgba(107, 90, 62, 0.35);
+    --borda-media: rgba(107, 90, 62, 0.55);
+    --borda-forte: rgba(200, 169, 81, 0.5);
+
+    --sombra-modal: rgba(20, 16, 31, 0.85);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-tema='escuro'] {
+  /* ---------- TEMA ESCURO, escolhido na mao ----------
+     repete os mesmos valores de cima - CSS nao tem "importar bloco",
+     entao a escolha manual precisa da propria copia pra ganhar dos dois
+     outros casos (claro padrao E a media query do sistema) */
+  --cor-fundo-1: #14101f;
+  --cor-fundo-2: #1b1330;
+  --cor-fundo-3: #2a1743;
+
+  --cor-texto: #e8dcc4;
+  --cor-texto-secundario: #b8a888;
+  --cor-texto-apagado: #8a7a5c;
+
+  --cor-destaque: #c8a951;
+  --cor-destaque-2: #ddc274;
+
+  --cor-ouro: #c8a951;
+
+  --cor-moldura: #6b5a3e;
+  --cor-botao-de: #6b5a3e;
+  --cor-botao-para: #c8a951;
+  --cor-botao-texto: #f6f0e0;
+
+  --cor-perigo: #d9636f;
+
+  --cor-inteligencia: #7aa2ff;
+  --cor-inteligencia-2: #4a6fd4;
+  --cor-forca: #6fd39b;
+  --cor-forca-2: #3f9c6d;
+  --cor-agilidade: #f0b46a;
+  --cor-agilidade-2: #c8853f;
+
+  --superficie: rgba(232, 220, 196, 0.05);
+  --superficie-2: rgba(232, 220, 196, 0.03);
+  --painel-solido: rgba(26, 19, 36, 0.96);
+
+  --borda-fraca: rgba(107, 90, 62, 0.35);
+  --borda-media: rgba(107, 90, 62, 0.55);
+  --borda-forte: rgba(200, 169, 81, 0.5);
+
+  --sombra-modal: rgba(20, 16, 31, 0.85);
+
+  color-scheme: dark;
+}

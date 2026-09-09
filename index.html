@@ -13,6 +13,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Grind & Glory" />
     <title>Grind & Glory</title>
+    <script>
+      // aplica o tema salvo ANTES da primeira pintura da tela, senao da
+      // pra ver um flash com o tema errado por uma fracao de segundo.
+      // se nao tem nada salvo, nem mexe no atributo - af o CSS usa a
+      // preferencia do sistema sozinho (ver src/temas.css)
+      try {
+        var temaSalvo = localStorage.getItem('tema')
+        if (temaSalvo === 'claro' || temaSalvo === 'escuro') {
+          document.documentElement.dataset.tema = temaSalvo
+        }
+      } catch (erro) {
+        // localStorage bloqueado (modo privado etc) - segue com o tema do sistema
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

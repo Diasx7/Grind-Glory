@@ -1,8 +1,8 @@
 /* tela Semana - mesmo clima das outras, celular primeiro */
 .tela-semana {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   position: relative;
   overflow-x: hidden;
 }
@@ -14,7 +14,7 @@
   transform: translateX(-50%);
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 28%, transparent) 0%, transparent 70%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -29,7 +29,7 @@
 }
 
 .semana-aviso {
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   font-size: 14px;
   text-align: center;
   padding-top: 60px;
@@ -47,8 +47,8 @@
 .botao-tentar-de-novo {
   margin-top: 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #f1eaff;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 9px 18px;
@@ -57,7 +57,7 @@
 }
 
 .botao-tentar-de-novo:hover {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 /* ---------- topo ---------- */
@@ -72,7 +72,7 @@
 
 .subtitulo-semana {
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-top: 4px;
 }
 
@@ -84,16 +84,16 @@
 }
 
 .dia-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border-radius: 14px;
   padding: 14px;
 }
 
 /* o dia de hoje se destaca um pouco - é a referencia dos outros 6 */
 .dia-card-hoje {
-  border-color: rgba(192, 132, 252, 0.4);
-  background: rgba(192, 132, 252, 0.07);
+  border-color: color-mix(in srgb, var(--cor-destaque) 40%, transparent);
+  background: color-mix(in srgb, var(--cor-destaque) 7%, transparent);
 }
 
 .dia-topo {
@@ -110,7 +110,7 @@
 
 .dia-data {
   font-size: 12px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
 }
 
 .botao-add-dia {
@@ -118,21 +118,21 @@
   height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border: none;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
 
 .botao-add-dia:hover {
-  background: rgba(192, 132, 252, 0.25);
+  background: color-mix(in srgb, var(--cor-destaque) 25%, transparent);
 }
 
 .dia-vazio {
   font-size: 13px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-top: 10px;
 }
 
@@ -172,7 +172,7 @@
 .botao-apagar {
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-size: 14px;
   cursor: pointer;
   padding: 4px 6px;
@@ -180,35 +180,35 @@
 }
 
 .botao-apagar:hover {
-  color: #ff8095;
+  color: var(--cor-perigo);
 }
 
 /* ---------- formulario de add por dia ---------- */
 .form-dia {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
 }
 
 .form-dia input[type='text'] {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 14px;
   font-family: inherit;
   box-sizing: border-box;
 }
 
 .form-dia input[type='text']::placeholder {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .form-dia input[type='text']:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .chips-dia {
@@ -221,8 +221,8 @@
 /* mesma cara dos chips de categoria da tela Hoje */
 .chip {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 12%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 13px;
   font-family: inherit;
   padding: 7px 12px;
@@ -231,30 +231,30 @@
 }
 
 .chip:hover {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: color-mix(in srgb, var(--cor-texto) 28%, transparent);
 }
 
 .chip-ativo {
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
 .chip-ativo.cor-estudo,
 .chip-ativo.cor-leitura {
-  border-color: #7aa2ff;
-  background: rgba(122, 162, 255, 0.15);
+  border-color: var(--cor-inteligencia);
+  background: color-mix(in srgb, var(--cor-inteligencia) 15%, transparent);
 }
 
 .chip-ativo.cor-exercicio,
 .chip-ativo.cor-saude {
-  border-color: #6fd39b;
-  background: rgba(111, 211, 155, 0.15);
+  border-color: var(--cor-forca);
+  background: color-mix(in srgb, var(--cor-forca) 15%, transparent);
 }
 
 .chip-ativo.cor-trabalho,
 .chip-ativo.cor-organizacao {
-  border-color: #f0b46a;
-  background: rgba(240, 180, 106, 0.15);
+  border-color: var(--cor-agilidade);
+  background: color-mix(in srgb, var(--cor-agilidade) 15%, transparent);
 }
 
 .botao-add-dia-confirma {
@@ -262,8 +262,8 @@
   margin-top: 10px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;

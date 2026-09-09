@@ -2,8 +2,8 @@
    nao tem conta) e focado num passo de cada vez */
 .onboarding-tela {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   position: relative;
   overflow-x: hidden;
 }
@@ -15,7 +15,7 @@
   transform: translateX(-50%);
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 28%, transparent) 0%, transparent 70%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -34,7 +34,7 @@
   display: block;
   font-size: 12px;
   letter-spacing: 1.5px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-bottom: 18px;
 }
 
@@ -47,7 +47,7 @@
 
 .onboarding-subtitulo {
   font-size: 14px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.5;
   margin-bottom: 22px;
 }
@@ -65,30 +65,30 @@
 .linha-campo input {
   flex: 1;
   min-width: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 15px;
   font-family: inherit;
 }
 
 .linha-campo input::placeholder {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .linha-campo input:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .botao-add {
   width: 48px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
@@ -108,8 +108,8 @@
 
 .chip {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 12%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 13px;
   font-family: inherit;
   padding: 7px 12px;
@@ -118,30 +118,30 @@
 }
 
 .chip:hover {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: color-mix(in srgb, var(--cor-texto) 28%, transparent);
 }
 
 .chip-ativo {
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
 .chip-ativo.cor-estudo,
 .chip-ativo.cor-leitura {
-  border-color: #7aa2ff;
-  background: rgba(122, 162, 255, 0.15);
+  border-color: var(--cor-inteligencia);
+  background: color-mix(in srgb, var(--cor-inteligencia) 15%, transparent);
 }
 
 .chip-ativo.cor-exercicio,
 .chip-ativo.cor-saude {
-  border-color: #6fd39b;
-  background: rgba(111, 211, 155, 0.15);
+  border-color: var(--cor-forca);
+  background: color-mix(in srgb, var(--cor-forca) 15%, transparent);
 }
 
 .chip-ativo.cor-trabalho,
 .chip-ativo.cor-organizacao {
-  border-color: #f0b46a;
-  background: rgba(240, 180, 106, 0.15);
+  border-color: var(--cor-agilidade);
+  background: color-mix(in srgb, var(--cor-agilidade) 15%, transparent);
 }
 
 /* ---------- lista de tarefas do rascunho ---------- */
@@ -158,8 +158,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 14px;
@@ -168,25 +168,25 @@
 .onboarding-lista button {
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .onboarding-lista button:hover {
-  color: #ff8095;
+  color: var(--cor-perigo);
 }
 
 /* ---------- passo do heroi ---------- */
 .onboarding-input-nome {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 15px;
   font-family: inherit;
   margin-bottom: 16px;
@@ -194,7 +194,7 @@
 
 .onboarding-input-nome:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .onboarding-avatares {
@@ -208,15 +208,15 @@
   width: 52px;
   height: 52px;
   font-size: 26px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 2px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 14px;
   cursor: pointer;
 }
 
 .onboarding-avatar-ativo {
-  border-color: #c084fc;
-  background: rgba(192, 132, 252, 0.15);
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
 }
 
 /* ---------- passo da conta ---------- */
@@ -228,32 +228,32 @@
 }
 
 .onboarding-form-conta input {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 15px;
   font-family: inherit;
 }
 
 .onboarding-form-conta input::placeholder {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .onboarding-form-conta input:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .erro-form {
-  color: #ff8095;
+  color: var(--cor-perigo);
   font-size: 13px;
   line-height: 1.45;
 }
 
 .onboarding-aviso {
-  color: #c084fc;
+  color: var(--cor-destaque);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -263,8 +263,8 @@
   width: 100%;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
@@ -286,7 +286,7 @@
   width: 100%;
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-family: inherit;
   font-size: 13px;
   padding: 12px;
@@ -294,7 +294,7 @@
 }
 
 .onboarding-botao-pular:hover {
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
 }
 
 .onboarding-ja-tenho-conta {
@@ -303,7 +303,7 @@
   text-align: center;
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-family: inherit;
   font-size: 13px;
   padding: 16px 0 0;
@@ -311,5 +311,5 @@
 }
 
 .onboarding-ja-tenho-conta:hover {
-  color: #c084fc;
+  color: var(--cor-destaque);
 }

@@ -43,6 +43,23 @@ function TelaHeroi({ usuario }) {
   )
   const [avisoLembrete, setAvisoLembrete] = useState('')
 
+  // tema: 'claro', 'escuro' ou null (null = segue o sistema). o valor em
+  // si mora no localStorage e no atributo data-tema do <html> - aqui é so
+  // uma copia pra saber qual botao pintar de ativo. o index.html tem um
+  // script que aplica isso ANTES da tela pintar, pra nao dar flash.
+  const [tema, setTema] = useState(() => localStorage.getItem('tema'))
+
+  function escolherTema(escolha) {
+    if (escolha === 'sistema') {
+      localStorage.removeItem('tema')
+      delete document.documentElement.dataset.tema
+    } else {
+      localStorage.setItem('tema', escolha)
+      document.documentElement.dataset.tema = escolha
+    }
+    setTema(escolha === 'sistema' ? null : escolha)
+  }
+
   useEffect(() => {
     buscarHeroi()
   }, [])
@@ -352,6 +369,37 @@ function TelaHeroi({ usuario }) {
             )
           })}
         </div>
+
+        <section className="bloco-aparencia">
+          <h2 className="titulo-espelho">aparência</h2>
+
+          <div className="tema-opcoes">
+            <button
+              type="button"
+              className={tema === 'claro' ? 'tema-botao tema-botao-ativo' : 'tema-botao'}
+              onClick={() => escolherTema('claro')}
+              aria-pressed={tema === 'claro'}
+            >
+              ☀️ claro
+            </button>
+            <button
+              type="button"
+              className={tema === 'escuro' ? 'tema-botao tema-botao-ativo' : 'tema-botao'}
+              onClick={() => escolherTema('escuro')}
+              aria-pressed={tema === 'escuro'}
+            >
+              🌙 escuro
+            </button>
+            <button
+              type="button"
+              className={!tema ? 'tema-botao tema-botao-ativo' : 'tema-botao'}
+              onClick={() => escolherTema('sistema')}
+              aria-pressed={!tema}
+            >
+              🖥️ sistema
+            </button>
+          </div>
+        </section>
 
         <section className="bloco-lembrete">
           <h2 className="titulo-espelho">lembretes</h2>

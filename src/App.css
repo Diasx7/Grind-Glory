@@ -1,8 +1,8 @@
 /* tela de abertura do jogo, por enquanto só isso mesmo */
 .tela-inicial {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,13 +13,14 @@
   text-align: center;
 }
 
-/* um brilho roxo atras do conteudo, só pra dar clima de rpg */
+/* um brilho atras do conteudo, só pra dar clima de rpg. cor-mix em vez de
+   rgba pq a cor de base (--cor-destaque-2) muda de tema pra tema */
 .brilho {
   position: absolute;
   top: -120px;
   width: 320px;
   height: 320px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.35) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 35%, transparent) 0%, transparent 70%);
   filter: blur(10px);
 }
 
@@ -35,8 +36,8 @@
 .selo {
   font-size: 12px;
   letter-spacing: 2px;
-  color: #c084fc;
-  border: 1px solid rgba(192, 132, 252, 0.5);
+  color: var(--cor-destaque);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 50%, transparent);
   border-radius: 999px;
   padding: 6px 14px;
   margin-bottom: 24px;
@@ -50,12 +51,12 @@
 }
 
 .e-comercial {
-  color: #c084fc;
+  color: var(--cor-destaque);
 }
 
 .subtitulo {
   font-size: 16px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.5;
   margin-bottom: 32px;
 }
@@ -65,14 +66,14 @@
   width: 200px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 10%, transparent);
   overflow: hidden;
 }
 
 .barra-xp-preenchida {
   width: 35%;
   height: 100%;
-  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  background: linear-gradient(90deg, var(--cor-destaque), var(--cor-destaque-2));
 }
 
 /* area de login/teste do dia 2, bem simples ainda */
@@ -82,8 +83,8 @@
   width: 100%;
   max-width: 420px;
   margin-top: 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 16px;
 }
@@ -98,28 +99,28 @@
 .login-caixa button {
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 20%, transparent);
   font-size: 14px;
   font-family: inherit;
 }
 
 .login-caixa input {
-  background: rgba(255, 255, 255, 0.06);
-  color: #f1eaff;
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  color: var(--cor-texto);
 }
 
 .login-caixa input::placeholder {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .login-caixa input:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .login-caixa button {
-  background: #aa3bff;
-  color: #fff;
+  background: var(--cor-destaque);
+  color: var(--cor-botao-texto);
   border: none;
   cursor: pointer;
 }
@@ -142,21 +143,21 @@
 /* criar conta é a acao secundaria, entao fica so contornado */
 .login-caixa .botao-secundario {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto-secundario);
 }
 
 .login-erro {
   font-size: 13px;
   line-height: 1.45;
-  color: #ff8095;
+  color: var(--cor-perigo);
   text-align: left;
 }
 
 .login-aviso {
   font-size: 13px;
   line-height: 1.45;
-  color: #c084fc;
+  color: var(--cor-destaque);
   text-align: left;
 }
 
@@ -173,8 +174,8 @@
 /* telinha de espera enquanto o perfil do jogador é criado */
 .tela-carregando {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #b9aed1;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto-secundario);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,8 +195,8 @@
 .botao-tentar-de-novo {
   margin-top: 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #f1eaff;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 9px 18px;
@@ -204,7 +205,7 @@
 }
 
 .botao-tentar-de-novo:hover {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 /* ---------- barra de abas (Hoje / Heroi) ---------- */
@@ -215,8 +216,8 @@
   bottom: 0;
   z-index: 10;
   display: flex;
-  background: rgba(20, 16, 31, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--painel-solido);
+  border-top: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   /* respeita a faixa do gesto no iphone */
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -229,7 +230,7 @@
   gap: 3px;
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.5px;
@@ -245,7 +246,7 @@
 }
 
 .aba-ativa {
-  color: #c084fc;
+  color: var(--cor-destaque);
 }
 
 .aba-ativa .aba-emoji {

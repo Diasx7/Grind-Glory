@@ -1,13 +1,13 @@
 /* tela "Hoje" - pensada pro celular primeiro, no pc só fica centralizada */
 .tela-hoje {
   min-height: 100svh;
-  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
-  color: #f1eaff;
+  background: linear-gradient(160deg, var(--cor-fundo-1) 0%, var(--cor-fundo-2) 45%, var(--cor-fundo-3) 100%);
+  color: var(--cor-texto);
   position: relative;
   overflow-x: hidden;
 }
 
-/* mesmo brilho roxo da tela de abertura, pra parecer o mesmo app */
+/* mesmo brilho da tela de abertura, pra parecer o mesmo app */
 .brilho-hoje {
   position: absolute;
   top: -160px;
@@ -15,7 +15,7 @@
   transform: translateX(-50%);
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--cor-destaque-2) 28%, transparent) 0%, transparent 70%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -45,14 +45,14 @@
 
 .data-hoje {
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-top: 4px;
 }
 
 .botao-sair {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 15%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 12px;
   padding: 6px 12px;
   border-radius: 999px;
@@ -60,8 +60,8 @@
 }
 
 .botao-sair:hover {
-  color: #f1eaff;
-  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--cor-texto);
+  border-color: color-mix(in srgb, var(--cor-texto) 30%, transparent);
 }
 
 /* ---------- barrinha de progresso do dia ---------- */
@@ -73,7 +73,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   letter-spacing: 1px;
   margin-bottom: 8px;
 }
@@ -81,20 +81,20 @@
 .progresso-barra {
   height: 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 8%, transparent);
   overflow: hidden;
 }
 
 .progresso-preenchido {
   height: 100%;
-  background: linear-gradient(90deg, #aa3bff, #c084fc);
+  background: linear-gradient(90deg, var(--cor-destaque), var(--cor-destaque-2));
   border-radius: 999px;
   transition: width 0.3s ease;
 }
 
 .progresso-recado {
   font-size: 13px;
-  color: #c084fc;
+  color: var(--cor-destaque);
   margin-top: 10px;
   text-align: center;
 }
@@ -112,30 +112,30 @@
 .linha-campo input {
   flex: 1;
   min-width: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 15px;
   font-family: inherit;
 }
 
 .linha-campo input::placeholder {
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .linha-campo input:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .botao-add {
   width: 48px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
@@ -154,25 +154,25 @@
   margin-top: 10px;
 }
 
-/* mesma cara do chip de categoria, mas acende em roxo (nao tem atributo,
-   entao nao faz sentido usar as cores azul/verde/ambar aqui) */
+/* mesma cara do chip de categoria, mas acende no destaque do tema (nao tem
+   atributo, entao nao faz sentido usar as cores azul/verde/ambar aqui) */
 .chip-dia-ativo {
-  border-color: #c084fc;
-  background: rgba(192, 132, 252, 0.15);
-  color: #f1eaff;
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
 .input-data {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 12%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 13px;
   font-family: inherit;
   padding: 6px 10px;
   border-radius: 999px;
-  /* faz o iconezinho de calendario nativo aparecer certo no fundo escuro */
-  color-scheme: dark;
+  /* faz o iconezinho de calendario nativo seguir o tema (claro/escuro
+     definido em temas.css, ver color-scheme no :root) */
 }
 
 /* ---------- vincular tarefa a um objetivo ---------- */
@@ -185,31 +185,30 @@
 
 .select-objetivo {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 13px;
   font-family: inherit;
-  color-scheme: dark;
 }
 
 .input-incremento {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(192, 132, 252, 0.4);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 40%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 13px;
   font-family: inherit;
 }
 
 .input-incremento:focus {
   outline: none;
-  border-color: rgba(192, 132, 252, 0.7);
+  border-color: color-mix(in srgb, var(--cor-destaque) 70%, transparent);
 }
 
 /* ---------- painel de planejar amanha ---------- */
@@ -222,11 +221,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 10%, transparent);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
@@ -234,13 +233,13 @@
 
 .amanha-contagem {
   font-size: 12px;
-  color: #c084fc;
+  color: var(--cor-destaque);
 }
 
 .amanha-conteudo {
   margin-top: 10px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--cor-texto) 3%, transparent);
   border-radius: 12px;
 }
 
@@ -250,13 +249,13 @@
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-bottom: 12px;
 }
 
 .amanha-vazio {
   font-size: 13px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-bottom: 12px;
 }
 
@@ -264,15 +263,15 @@
 .sugestao-espelho {
   margin-bottom: 14px;
   padding: 12px;
-  background: rgba(192, 132, 252, 0.08);
-  border: 1px solid rgba(192, 132, 252, 0.3);
+  background: color-mix(in srgb, var(--cor-destaque) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 30%, transparent);
   border-radius: 12px;
 }
 
 .sugestao-texto {
   font-size: 13px;
   line-height: 1.5;
-  color: #e9d5ff;
+  color: var(--cor-destaque-2);
   margin-bottom: 10px;
 }
 
@@ -280,8 +279,8 @@
   width: 100%;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -297,8 +296,8 @@
 .botao-focar-amanha {
   width: 100%;
   background: transparent;
-  border: 1px dashed rgba(192, 132, 252, 0.4);
-  color: #c084fc;
+  border: 1px dashed color-mix(in srgb, var(--cor-destaque) 40%, transparent);
+  color: var(--cor-destaque);
   font-family: inherit;
   font-size: 13px;
   padding: 8px 14px;
@@ -314,8 +313,8 @@
 .copiar-dia {
   margin: 14px 0;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--cor-texto) 3%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--cor-texto) 12%, transparent);
   border-radius: 12px;
 }
 
@@ -334,7 +333,7 @@
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   margin-bottom: 10px;
 }
 
@@ -349,8 +348,8 @@
   width: 100%;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -373,8 +372,8 @@
 
 .chip {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 12%, transparent);
+  color: var(--cor-texto-secundario);
   font-size: 13px;
   font-family: inherit;
   padding: 7px 12px;
@@ -383,33 +382,33 @@
 }
 
 .chip:hover {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: color-mix(in srgb, var(--cor-texto) 28%, transparent);
 }
 
 /* a categoria escolhida acende na cor dela */
 .chip-ativo {
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-weight: 500;
 }
 
-/* a cor segue o atributo, nao a categoria: azul = inteligencia,
-   verde = força, ambar = agilidade. assim bate com a tela do heroi depois. */
+/* a cor segue o atributo, nao a categoria: inteligencia/forca/agilidade,
+   cada uma com seu par de tons. assim bate com a tela do heroi depois. */
 .chip-ativo.cor-estudo,
 .chip-ativo.cor-leitura {
-  border-color: #7aa2ff;
-  background: rgba(122, 162, 255, 0.15);
+  border-color: var(--cor-inteligencia);
+  background: color-mix(in srgb, var(--cor-inteligencia) 15%, transparent);
 }
 
 .chip-ativo.cor-exercicio,
 .chip-ativo.cor-saude {
-  border-color: #6fd39b;
-  background: rgba(111, 211, 155, 0.15);
+  border-color: var(--cor-forca);
+  background: color-mix(in srgb, var(--cor-forca) 15%, transparent);
 }
 
 .chip-ativo.cor-trabalho,
 .chip-ativo.cor-organizacao {
-  border-color: #f0b46a;
-  background: rgba(240, 180, 106, 0.15);
+  border-color: var(--cor-agilidade);
+  background: color-mix(in srgb, var(--cor-agilidade) 15%, transparent);
 }
 
 /* ---------- lista de tarefas ---------- */
@@ -424,8 +423,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border-radius: 14px;
   padding: 14px;
   transition: opacity 0.3s ease;
@@ -451,17 +450,17 @@
 
 .texto-estudo,
 .texto-leitura {
-  color: #7aa2ff;
+  color: var(--cor-inteligencia);
 }
 
 .texto-exercicio,
 .texto-saude {
-  color: #6fd39b;
+  color: var(--cor-forca);
 }
 
 .texto-trabalho,
 .texto-organizacao {
-  color: #f0b46a;
+  color: var(--cor-agilidade);
 }
 
 /* bolinha de marcar, cada categoria tem a borda na cor dela */
@@ -471,8 +470,12 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  color: #14101f;
+  border: 2px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  /* essa cor so aparece de verdade quando marcada (vira o icone sobre o
+     fundo preenchido, ver .tarefa-feita .marcador) - por isso usa
+     --cor-fundo-1: é escura no tema escuro (icone escuro sobre o dourado)
+     e clara no tema claro (icone claro sobre o bronze) */
+  color: var(--cor-fundo-1);
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
@@ -486,17 +489,17 @@
 
 .marcador.cor-estudo,
 .marcador.cor-leitura {
-  border-color: #7aa2ff;
+  border-color: var(--cor-inteligencia);
 }
 
 .marcador.cor-exercicio,
 .marcador.cor-saude {
-  border-color: #6fd39b;
+  border-color: var(--cor-forca);
 }
 
 .marcador.cor-trabalho,
 .marcador.cor-organizacao {
-  border-color: #f0b46a;
+  border-color: var(--cor-agilidade);
 }
 
 /* quando a tarefa ta feita o card apaga e o titulo fica riscado */
@@ -509,8 +512,8 @@
 }
 
 .tarefa-feita .marcador {
-  background: #c084fc;
-  border-color: #c084fc;
+  background: var(--cor-destaque);
+  border-color: var(--cor-destaque);
   /* a microrrecompensa: um "pop" sutil quando a bolinha acende */
   animation: marcador-pop 0.35s ease;
 }
@@ -555,11 +558,11 @@
 }
 
 .form-editar-tarefa input[type='text'] {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(192, 132, 252, 0.5);
+  background: color-mix(in srgb, var(--cor-texto) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 50%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
-  color: #f1eaff;
+  color: var(--cor-texto);
   font-size: 14px;
   font-family: inherit;
 }
@@ -570,7 +573,7 @@
 
 .editar-nota {
   font-size: 12px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
 }
 
 .botoes-editar {
@@ -589,8 +592,8 @@
 }
 
 .botoes-editar button[type='submit'] {
-  background: #aa3bff;
-  color: #fff;
+  background: var(--cor-destaque);
+  color: var(--cor-botao-texto);
 }
 
 .botoes-editar button[type='submit']:disabled {
@@ -600,14 +603,14 @@
 
 .botao-cancelar-nome {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #b9aed1;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 20%, transparent);
+  color: var(--cor-texto-secundario);
 }
 
 .botao-apagar {
   background: transparent;
   border: none;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   font-size: 14px;
   cursor: pointer;
   padding: 4px 6px;
@@ -615,14 +618,14 @@
 }
 
 .botao-apagar:hover {
-  color: #ff8095;
+  color: var(--cor-perigo);
 }
 
 /* ---------- estado vazio ---------- */
 .vazio {
   text-align: center;
   padding: 36px 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed color-mix(in srgb, var(--cor-texto) 12%, transparent);
   border-radius: 16px;
 }
 
@@ -638,14 +641,14 @@
 
 .vazio-texto {
   font-size: 14px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.55;
   max-width: 280px;
   margin: 0 auto;
 }
 
 .aviso {
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   font-size: 14px;
   text-align: center;
   padding: 20px;
@@ -655,8 +658,8 @@
 .botao-tentar-de-novo {
   margin-top: 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #f1eaff;
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 25%, transparent);
+  color: var(--cor-texto);
   font-family: inherit;
   font-size: 13px;
   padding: 9px 18px;
@@ -665,11 +668,11 @@
 }
 
 .botao-tentar-de-novo:hover {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: color-mix(in srgb, var(--cor-destaque) 60%, transparent);
 }
 
 .erro-form {
-  color: #ff8095;
+  color: var(--cor-perigo);
   font-size: 13px;
   line-height: 1.45;
   margin-top: 10px;
@@ -687,8 +690,8 @@
   text-align: center;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--cor-texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border-radius: 10px;
   padding: 9px;
 }
@@ -707,8 +710,8 @@
   align-items: center;
   gap: 4px;
   text-align: center;
-  background: rgba(43, 26, 66, 0.96);
-  border: 1px solid rgba(192, 132, 252, 0.4);
+  background: var(--painel-solido);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 40%, transparent);
   border-radius: 14px;
   padding: 12px 16px;
   animation: sobe 0.25s ease;
@@ -728,12 +731,12 @@
 .ganho-valores {
   font-size: 15px;
   font-weight: 600;
-  color: #e9d5ff;
+  color: var(--cor-destaque-2);
 }
 
 .ganho-recado {
   font-size: 12px;
-  color: #b9aed1;
+  color: var(--cor-texto-secundario);
   line-height: 1.45;
 }
 
@@ -742,8 +745,8 @@
 .chip-repete {
   margin-top: 10px;
   background: transparent;
-  border: 1px dashed rgba(255, 255, 255, 0.15);
-  color: #6e6482;
+  border: 1px dashed color-mix(in srgb, var(--cor-texto) 15%, transparent);
+  color: var(--cor-texto-apagado);
   font-size: 13px;
   font-family: inherit;
   padding: 7px 12px;
@@ -752,16 +755,16 @@
 }
 
 .chip-repete:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: color-mix(in srgb, var(--cor-texto) 30%, transparent);
 }
 
 /* ligado ele vira linha cheia e acende, pra nao passar batido que a
    tarefa vai voltar todo dia */
 .chip-repete-ativo {
   border-style: solid;
-  border-color: #c084fc;
-  background: rgba(192, 132, 252, 0.15);
-  color: #f1eaff;
+  border-color: var(--cor-destaque);
+  background: color-mix(in srgb, var(--cor-destaque) 15%, transparent);
+  color: var(--cor-texto);
 }
 
 /* ---------- marca de rotina na lista ---------- */
@@ -776,7 +779,7 @@
 .marca-rotina {
   font-size: 11px;
   letter-spacing: 0.5px;
-  color: #6e6482;
+  color: var(--cor-texto-apagado);
   margin-top: 5px;
 }
 
@@ -785,7 +788,7 @@
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: rgba(20, 16, 31, 0.85);
+  background: var(--sombra-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -807,8 +810,8 @@
   text-align: center;
   max-width: 320px;
   width: 100%;
-  background: linear-gradient(160deg, #2a1743 0%, #3a1f5c 100%);
-  border: 1px solid rgba(192, 132, 252, 0.4);
+  background: linear-gradient(160deg, var(--cor-fundo-2) 0%, var(--cor-fundo-3) 100%);
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 40%, transparent);
   border-radius: 20px;
   padding: 32px 24px;
   animation: celebracao-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -846,7 +849,7 @@
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #c084fc;
+  color: var(--cor-destaque);
   margin-bottom: 8px;
 }
 
@@ -861,8 +864,8 @@
   width: 100%;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
-  color: #fff;
+  background: linear-gradient(160deg, var(--cor-botao-de), var(--cor-botao-para));
+  color: var(--cor-botao-texto);
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
