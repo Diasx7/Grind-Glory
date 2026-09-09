@@ -32,6 +32,12 @@ export const convites = {
   agilidade: 'arrumar uma gaveta já conta',
 }
 
+// escolha de aparencia no onboarding - só estética, guardada em usuario.avatar.
+// de proposito NAO usa os mesmos emojis do carinhaDoHeroi (🧙🗡️🏹🥚) - aqueles
+// vem do atributo mais forte de verdade, nunca de uma escolha. misturar os
+// dois ia fazer parecer que escolher um bicho aqui muda o jogo.
+export const avatares = ['🦊', '🐺', '🦉', '🐢', '🦁', '🐙', '🦋', '🐉']
+
 // a cara do heroi segue o atributo mais forte - ele é um espelho, afinal
 export function carinhaDoHeroi(perfil) {
   const total = perfil.inteligencia + perfil.forca + perfil.agilidade

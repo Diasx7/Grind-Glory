@@ -2,6 +2,7 @@
 import { supabase, supabaseConfigurado } from './supabaseClient'
 import { dataDeHoje, somarDias } from './jogo'
 import Login from './Login'
+import Onboarding from './Onboarding'
 import TelaHoje from './TelaHoje'
 import TelaSemana from './TelaSemana'
 import TelaObjetivos from './TelaObjetivos'
@@ -17,6 +18,13 @@ function App() {
   const [aba, setAba] = useState('hoje')
   const [diaAtual, setDiaAtual] = useState(dataDeHoje())
 
+  // null = ainda nao decidiu. so é decidido UMA vez, olhando se ja tinha
+  // sessao salva quando o app abriu - depois disso so o proprio onboarding
+  // (via aoQuererLogin/aoTerminar) muda esse valor. assim, criar conta no
+  // meio do onboarding (que faz a sessao aparecer) nao pula pro app antes
+  // da hora, e sair do app depois nao manda a pessoa pro onboarding de novo.
+  const [mostrarOnboarding, setMostrarOnboarding] = useState(null)
+
   useEffect(() => {
     // se o .env ainda nao foi preenchido, nem tenta falar com o supabase
     if (!supabaseConfigurado) {
@@ -28,6 +36,7 @@ function App() {
     supabase.auth.getSession().then(({ data }) => {
       setSessao(data.session)
       setCarregando(false)
+      setMostrarOnboarding(!data.session)
     })
 
     // fica escutando login/logout acontecer
@@ -149,15 +158,17 @@ function App() {
     }
 
     if (!data) {
-      // o nome digitado no cadastro vem nos metadados do auth (ver Login.jsx).
-      // se nao tiver por algum motivo, cai no pedaço do email so pra nao
-      // ficar em branco
+      // o nome (e o avatar, se veio do onboarding) vem nos metadados do
+      // auth. se nao tiver nome por algum motivo, cai no pedaço do email
+      // so pra nao ficar em branco
       const nomeDoCadastro =
         sessao.user.user_metadata?.nome || sessao.user.email.split('@')[0]
+      const avatarDoCadastro = sessao.user.user_metadata?.avatar || null
 
       const { error } = await supabase.from('usuario').insert({
         id: sessao.user.id,
         nome: nomeDoCadastro,
+        avatar: avatarDoCadastro,
         energia_data: dataDeHoje(),
       })
 
@@ -168,6 +179,10 @@ function App() {
         setErroPerfil(true)
         return
       }
+
+      // se a conta veio do onboarding, tem um plano rascunho esperando no
+      // navegador - migra pro banco agora que a conta existe de verdade
+      await migrarTarefasDoOnboarding(sessao.user.id)
     } else {
       await zerarEnergiaSeVirouODia(data)
     }
@@ -189,6 +204,56 @@ function App() {
     if (error) {
       console.log('erro ao zerar a energia do dia', error)
     }
+  }
+
+  // as tarefas do onboarding (passo "o que voce quer fazer amanha") ficam
+  // no localStorage ate a conta existir de verdade. essa funcao so roda
+  // uma vez, logo apos criar a linha do usuario (ver acima), entao migra
+  // sem duplicar - se rodar de novo por engano, o localStorage ja foi
+  // limpo e nao acha mais nada pra migrar.
+  async function migrarTarefasDoOnboarding(usuarioId) {
+    const salvo = localStorage.getItem('onboardingTarefas')
+    // tira do localStorage ja, antes de qualquer await - evita migrar 2x
+    // se essa funcao acabar rodando de novo por algum motivo
+    localStorage.removeItem('onboardingTarefas')
+
+    if (!salvo) return
+
+    let tarefas
+    try {
+      tarefas = JSON.parse(salvo)
+    } catch {
+      return
+    }
+
+    if (!tarefas || tarefas.length === 0) return
+
+    const amanha = somarDias(dataDeHoje(), 1)
+    const novas = tarefas.map((t) => ({
+      usuario_id: usuarioId,
+      titulo: t.titulo,
+      categoria: t.categoria,
+      data_ref: amanha,
+      recorrente: false,
+    }))
+
+    const { error } = await supabase.from('tarefa').insert(novas)
+
+    if (error) {
+      console.log('erro ao migrar tarefas do onboarding', error)
+    }
+  }
+
+  // quem abre sem conta cai no onboarding (leva direto pro plano de amanha,
+  // sem pedir nada antes). continua nele ate o ultimo passo mesmo depois
+  // de criar a conta (a sessao ja existe, mas falta o passo de notificacao).
+  if (mostrarOnboarding) {
+    return (
+      <Onboarding
+        aoQuererLogin={() => setMostrarOnboarding(false)}
+        aoTerminar={() => setMostrarOnboarding(false)}
+      />
+    )
   }
 
   // se ja ta logado, a tela de hoje toma conta do app inteiro

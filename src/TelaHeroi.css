@@ -101,6 +101,10 @@
   opacity: 0.6;
 }
 
+.heroi-avatar {
+  font-size: 16px;
+}
+
 .botao-heroi-nome:hover .lapis-nome {
   opacity: 1;
 }

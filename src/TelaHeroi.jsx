@@ -271,6 +271,10 @@ function TelaHeroi({ usuario }) {
               className="botao-heroi-nome"
               onClick={comecarEditarNome}
             >
+              {/* o avatar é so estetico (escolhido no onboarding) - nao tem
+                  nada a ver com a carinha grande ali em cima, que é o
+                  espelho de verdade dos atributos */}
+              {perfil.avatar && <span className="heroi-avatar">{perfil.avatar}</span>}
               <span className="heroi-nome">{nome}</span>
               <span className="lapis-nome">✏️</span>
             </button>

@@ -17,7 +17,8 @@ App web gamificado onde suas tarefas da vida real viram XP e evoluem um herói d
 - **Dia 13:** nome de verdade na saudação, em vez do pedaço do email
 - **Dia 14:** reduzir o atrito de planejar — repetir plano de ontem e lembrete à noite
 - **Dia 15:** o espelho sugerindo tarefa, editar tarefa e revisão da edição de nome
-- **Dia 16:** objetivos de longo prazo — o grande vira passos pequenos (esse aqui)
+- **Dia 16:** objetivos de longo prazo — o grande vira passos pequenos
+- **Dia 17:** onboarding novo — leva pro plano de amanhã antes de pedir conta (esse aqui)
 
 Ainda não tem loja nem equipamento, nem a aba "Este Mês" — o que
 decide a batalha é só o que você fez na vida real.
@@ -45,7 +46,7 @@ npm install
 
 ### 3. Criar as tabelas
 
-No menu da esquerda, entra em **SQL Editor** e roda os seis arquivos
+No menu da esquerda, entra em **SQL Editor** e roda os sete arquivos
 **nessa ordem**, um de cada vez (copia o conteúdo, cola e clica em
 **Run**):
 
@@ -62,9 +63,11 @@ No menu da esquerda, entra em **SQL Editor** e roda os seis arquivos
    de energia, que é o que a batalha gasta pra tentar
 6. [`supabase/migracao_dia16.sql`](supabase/migracao_dia16.sql) — a tabela
    `objetivo` e o vínculo da tarefa com ele
+7. [`supabase/migracao_dia17.sql`](supabase/migracao_dia17.sql) — a coluna
+   `avatar`, a aparência escolhida no onboarding
 
 Só o primeiro arquivo **não** deixa o banco atualizado — o app quebra sem
-os outros cinco.
+os outros seis.
 
 ### 4. Pegar a URL e a chave
 
@@ -123,13 +126,67 @@ npm run dev
 Abre o link que aparece no terminal (geralmente
 `http://localhost:5173`).
 
-## Como testar login e salvar tarefa
+## Como testar o onboarding (visitante novo, sem conta)
 
-1. Com o app aberto, digita seu **nome**, um email e uma senha (mínimo 6
-   caracteres)
-2. Na primeira vez, clica em **criar conta** — você entra direto, e a
-   saudação na tela Hoje mostra o nome que você digitou (não o email)
-3. Nas próximas, é o mesmo email e senha no botão **entrar**
+Desde o dia 17, quem abre o app **sem conta** não vê mais email/senha
+de cara — cai direto no onboarding, que leva pro valor do app (o plano
+de amanhã) antes de pedir qualquer coisa.
+
+### Simulando um usuário totalmente novo
+
+O onboarding só aparece pra quem não tem sessão salva. Pra simular
+isso de novo depois de já ter testado uma vez:
+
+1. Abre o **DevTools** (F12) > aba **Application** (Chrome) ou
+   **Armazenamento** (Firefox)
+2. Em **Local Storage**, apaga a chave `onboardingTarefas` se sobrou
+   alguma (rascunho de uma tentativa anterior)
+3. Se você já tinha criado uma conta e logado nesse navegador, clica em
+   **sair** na tela Hoje primeiro — sessão ativa sempre pula o
+   onboarding, de propósito (quem já tem conta não deve ver isso de novo)
+4. Recarrega a página numa aba anônima/privada (o jeito mais simples de
+   garantir que não tem nada de sessão ou rascunho velho atrapalhando)
+
+### O fluxo, passo a passo
+
+1. **"o que você quer fazer amanhã?"** — escreve 2 ou 3 tarefas,
+   escolhendo categoria em cada uma (igual na tela Hoje). O botão
+   **continuar** só liga depois de ter pelo menos uma
+2. **"agora, seu herói"** — escolhe um nome e um bichinho (isso é só
+   estética, não mexe em atributo nenhum — o texto na tela já avisa
+   isso). Só continua com o nome preenchido
+3. **"cria sua conta pra não perder esse plano"** — email e senha, como
+   sempre. Ao criar, as tarefas dos passos 1 e 2 (que até aqui só
+   existiam no `localStorage` do navegador) migram pro Supabase
+   automaticamente
+4. **"quer um lembrete às 21h?"** — mesma notificação local do dia 14,
+   só que perguntada aqui em vez de escondida na tela do Herói
+5. Cai na tela Hoje — a aba **"📅 planejar amanhã"** já mostra as
+   tarefas que você escreveu no passo 1, esperando o dia virar
+
+Em qualquer passo antes de criar a conta, tem um link discreto **"já
+tenho conta, entrar"** — quem já é usuário não fica preso no fluxo novo.
+
+### Confirmando que não duplicou nem perdeu nada
+
+1. Antes de criar a conta (ainda no passo 1 ou 2), abre o DevTools >
+   Local Storage > confere a chave `onboardingTarefas`: deve ter as
+   tarefas que você escreveu, em formato de lista
+2. Depois de criar a conta, confere no Supabase **Table Editor >
+   tarefa**: as mesmas tarefas devem estar lá, com `data_ref` do dia
+   seguinte a quando a conta foi criada
+3. A chave `onboardingTarefas` no Local Storage deve ter sumido depois
+   da migração (recarrega a página e confere de novo, pra garantir que
+   não ficou nada pra migrar de novo por engano)
+
+## Como testar login e salvar tarefa (quem já tem conta)
+
+1. Com o app aberto, clica em **já tenho conta, entrar** (ou já tinha
+   uma sessão salva, e caiu direto aqui)
+2. Digita o email e a senha (mínimo 6 caracteres) e clica em **entrar**
+3. Se quiser criar uma conta direto por aqui (sem passar pelo
+   onboarding), digita também um **nome** e clica em **criar conta** —
+   funciona igual, só sem o plano de amanhã pronto
 4. Já na tela Hoje, escreve um título, escolhe a categoria e clica no **+**
 5. Marca a tarefa na bolinha: ela risca e o ganho aparece embaixo
 6. Recarrega a página — se a tarefa continuar marcada e as moedas
@@ -502,3 +559,25 @@ cliente") - quem abrir o DevTools consegue mandar um `update` direto na
 tabela `objetivo` e forjar progresso. Mesmo raciocínio: só quem pode
 trapacear hoje é quem já é dono dos próprios dados, então fica pra
 quando tiver mais gente usando o app.
+
+### Onboarding com "Confirm email" ligado pula o passo do lembrete
+Se **Confirm email** estiver ligado no Supabase (ver seção 5.1 - o
+recomendado é desligar), o `signUp()` no passo 3 do onboarding não
+devolve sessão na hora - a pessoa só entra de verdade depois de clicar
+no link do email, normalmente numa aba/janela nova. Quando isso
+acontece, o `App.jsx` já abre direto na tela Hoje (a conta e o plano
+migrado funcionam certinho, isso não quebra), só que **pula o passo de
+perguntar sobre o lembrete das 21h**, porque tecnicamente é um
+carregamento novo do app, não uma continuação do mesmo `Onboarding.jsx`
+que tava na tela. Não é grave - dá pra ligar o lembrete depois na tela
+do Herói - mas é uma perda pequena de polimento nesse caminho
+específico. Só acontece com Confirm email ligado.
+
+### Avatar do onboarding não tem como trocar depois
+O nome dá pra editar a qualquer hora na tela do Herói (✏️ do lado do
+nome), mas o avatar (o bichinho escolhido no onboarding) só é definido
+uma vez, na criação da conta - não existe um jeito de trocar depois
+pela interface. Dá pra mudar direto no **Table Editor > usuario >
+avatar** no Supabase se precisar. Se um dia isso incomodar, é só
+colocar um seletor de avatar do lado do editor de nome, reaproveitando
+a mesma lista `avatares` do `jogo.js`.

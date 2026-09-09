@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
 
-// o supabase responde em ingles, entao traduzo os erros mais comuns
-function traduzirErro(mensagem) {
+// o supabase responde em ingles, entao traduzo os erros mais comuns.
+// exportada porque o Onboarding.jsx tambem cria conta e usa a mesma traducao.
+export function traduzirErro(mensagem) {
   if (mensagem.includes('Invalid login credentials')) {
     return 'email ou senha errados. se ainda não tem conta, clica em "criar conta".'
   }

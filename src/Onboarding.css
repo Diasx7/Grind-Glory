@@ -1,0 +1,315 @@
+/* onboarding - mesmo clima do resto do app, mas sem barra de abas (ainda
+   nao tem conta) e focado num passo de cada vez */
+.onboarding-tela {
+  min-height: 100svh;
+  background: linear-gradient(160deg, #14101f 0%, #1b1330 45%, #2a1743 100%);
+  color: #f1eaff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.onboarding-brilho {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(170, 59, 255, 0.28) 0%, rgba(170, 59, 255, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.onboarding-conteudo {
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* marca pequena, so pra dizer "voce ta no Grind & Glory" sem virar tela
+   de boas-vindas - nao é titulo, é so uma etiqueta discreta */
+.onboarding-marca {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: #6e6482;
+  margin-bottom: 18px;
+}
+
+.onboarding-titulo {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.onboarding-subtitulo {
+  font-size: 14px;
+  color: #b9aed1;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+/* ---------- form de tarefa (passo 1) ---------- */
+.onboarding-form {
+  margin-bottom: 18px;
+}
+
+.linha-campo {
+  display: flex;
+  gap: 8px;
+}
+
+.linha-campo input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  color: #f1eaff;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.linha-campo input::placeholder {
+  color: #6e6482;
+}
+
+.linha-campo input:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+.botao-add {
+  width: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.botao-add:hover {
+  filter: brightness(1.1);
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b9aed1;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.chip-ativo {
+  color: #f1eaff;
+  font-weight: 500;
+}
+
+.chip-ativo.cor-estudo,
+.chip-ativo.cor-leitura {
+  border-color: #7aa2ff;
+  background: rgba(122, 162, 255, 0.15);
+}
+
+.chip-ativo.cor-exercicio,
+.chip-ativo.cor-saude {
+  border-color: #6fd39b;
+  background: rgba(111, 211, 155, 0.15);
+}
+
+.chip-ativo.cor-trabalho,
+.chip-ativo.cor-organizacao {
+  border-color: #f0b46a;
+  background: rgba(240, 180, 106, 0.15);
+}
+
+/* ---------- lista de tarefas do rascunho ---------- */
+.onboarding-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.onboarding-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.onboarding-lista button {
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.onboarding-lista button:hover {
+  color: #ff8095;
+}
+
+/* ---------- passo do heroi ---------- */
+.onboarding-input-nome {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  color: #f1eaff;
+  font-size: 15px;
+  font-family: inherit;
+  margin-bottom: 16px;
+}
+
+.onboarding-input-nome:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+.onboarding-avatares {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.onboarding-avatar {
+  width: 52px;
+  height: 52px;
+  font-size: 26px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.onboarding-avatar-ativo {
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
+}
+
+/* ---------- passo da conta ---------- */
+.onboarding-form-conta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.onboarding-form-conta input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  color: #f1eaff;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.onboarding-form-conta input::placeholder {
+  color: #6e6482;
+}
+
+.onboarding-form-conta input:focus {
+  outline: none;
+  border-color: rgba(192, 132, 252, 0.6);
+}
+
+.erro-form {
+  color: #ff8095;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.onboarding-aviso {
+  color: #c084fc;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- botoes de acao (comuns aos 4 passos) ---------- */
+.onboarding-botao-continuar {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #aa3bff, #8b2ce0);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 15px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.onboarding-botao-continuar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.onboarding-botao-continuar:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.onboarding-botao-pular {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.onboarding-botao-pular:hover {
+  color: #b9aed1;
+}
+
+.onboarding-ja-tenho-conta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: #6e6482;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 16px 0 0;
+  cursor: pointer;
+}
+
+.onboarding-ja-tenho-conta:hover {
+  color: #c084fc;
+}
